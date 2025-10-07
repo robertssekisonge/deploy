@@ -1,0 +1,34 @@
+{
+  "users": [
+    {
+      "id": 15,
+      "name": "Test Parent",
+      "role": "PARENT",
+      "studentIds": [],
+      "status": "ACTIVE"
+    }
+  ],
+  "students": [
+    {
+      "id": 1,
+      "name": "Grace Nakato",
+      "accessNumber": "AA0001",
+      "class": "Senior 1",
+      "stream": "A"
+    },
+    {
+      "id": 2,
+      "name": "Aisha Mbabazi",
+      "accessNumber": "CC0001",
+      "class": "Senior 3",
+      "stream": "C"
+    },
+    {
+      "id": 3,
+      "name": "Samuel Kato",
+      "accessNumber": "AB0001",
+      "class": "Senior 1",
+      "stream": "B"
+    }
+  ]
+}

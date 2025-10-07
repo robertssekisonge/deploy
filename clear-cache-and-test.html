@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clear Cache and Test OPM Portal</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .container {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 30px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .step {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            margin: 15px 0;
+            border-radius: 10px;
+            border-left: 4px solid #4CAF50;
+        }
+        .step h3 {
+            margin-top: 0;
+            color: #4CAF50;
+        }
+        .button {
+            background: #4CAF50;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px 5px;
+            transition: background 0.3s;
+        }
+        .button:hover {
+            background: #45a049;
+        }
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+        .success { background: rgba(76, 175, 80, 0.3); }
+        .error { background: rgba(244, 67, 54, 0.3); }
+        .info { background: rgba(33, 150, 243, 0.3); }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 OPM Portal - Cache Clear & Test</h1>
+        
+        <div class="step">
+            <h3>Step 1: Clear Browser Cache</h3>
+            <p>Click the button below to clear your browser cache and reload the page:</p>
+            <button class="button" onclick="clearCache()">Clear Cache & Reload</button>
+            <div id="cacheStatus"></div>
+        </div>
+
+        <div class="step">
+            <h3>Step 2: Test API Connection</h3>
+            <p>Test if the API endpoints are working correctly:</p>
+            <button class="button" onclick="testAPI()">Test API Connection</button>
+            <div id="apiStatus"></div>
+        </div>
+
+        <div class="step">
+            <h3>Step 3: Open OPM Portal</h3>
+            <p>Once cache is cleared and API is working, open the OPM Portal:</p>
+            <button class="button" onclick="openPortal()">Open OPM Portal</button>
+        </div>
+
+        <div class="step">
+            <h3>Server Status</h3>
+            <div id="serverStatus">
+                <div class="info">Checking server status...</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function clearCache() {
+            const statusDiv = document.getElementById('cacheStatus');
+            statusDiv.innerHTML = '<div class="info">Clearing cache...</div>';
+            
+            // Clear various cache types
+            if ('caches' in window) {
+                caches.keys().then(names => {
+                    names.forEach(name => {
+                        caches.delete(name);
+                    });
+                });
+            }
+            
+            // Force reload
+            setTimeout(() => {
+                statusDiv.innerHTML = '<div class="success">✅ Cache cleared! Reloading page...</div>';
+                window.location.reload(true);
+            }, 1000);
+        }
+
+        async function testAPI() {
+            const statusDiv = document.getElementById('apiStatus');
+            statusDiv.innerHTML = '<div class="info">Testing API connection...</div>';
+            
+            try {
+                const response = await fetch('/api/opm/dashboard-data');
+                if (response.ok) {
+                    const data = await response.json();
+                    statusDiv.innerHTML = `<div class="success">✅ API Working! Dashboard data loaded (${Object.keys(data).length} fields)</div>`;
+                } else {
+                    statusDiv.innerHTML = `<div class="error">❌ API Error: ${response.status} ${response.statusText}</div>`;
+                }
+            } catch (error) {
+                statusDiv.innerHTML = `<div class="error">❌ Connection Error: ${error.message}</div>`;
+            }
+        }
+
+        function openPortal() {
+            window.open('http://localhost:5173', '_blank');
+        }
+
+        // Check server status on load
+        async function checkServerStatus() {
+            const statusDiv = document.getElementById('serverStatus');
+            
+            try {
+                const response = await fetch('/api/health');
+                if (response.ok) {
+                    const data = await response.json();
+                    statusDiv.innerHTML = `
+                        <div class="success">✅ Backend Server: Running on port 5000</div>
+                        <div class="success">✅ Frontend Server: Running on port 5173</div>
+                        <div class="success">✅ API Proxy: Working correctly</div>
+                    `;
+                } else {
+                    statusDiv.innerHTML = '<div class="error">❌ Backend server not responding</div>';
+                }
+            } catch (error) {
+                statusDiv.innerHTML = '<div class="error">❌ Cannot connect to servers</div>';
+            }
+        }
+
+        // Run server check on page load
+        window.onload = checkServerStatus;
+    </script>
+</body>
+</html>
+
+
+

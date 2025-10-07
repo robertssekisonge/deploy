@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grace Nakato Sponsorship - WORKING TEST</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .container {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 30px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+        }
+        h1 {
+            text-align: center;
+            color: #fff;
+            margin-bottom: 30px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input, select, textarea {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.9);
+            color: #333;
+            font-size: 16px;
+        }
+        button {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(45deg, #ff6b6b, #ee5a24);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        button:hover {
+            transform: translateY(-2px);
+        }
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            display: none;
+        }
+        .success {
+            background: rgba(46, 204, 113, 0.8);
+            color: white;
+        }
+        .error {
+            background: rgba(231, 76, 60, 0.8);
+            color: white;
+        }
+        .student-info {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        .student-photo {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #ff9a9e, #fecfef);
+            margin: 0 auto 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+        }
+        .sponsorship-details {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎉 Grace Nakato Sponsorship - WORKING TEST</h1>
+        
+        <div class="student-info">
+            <div class="student-photo">👧</div>
+            <h2>Grace Nakato</h2>
+            <p>Age: 8 years old | Grade: 3</p>
+            <p>📍 Kampala, Uganda</p>
+            <p>💝 Needs sponsorship for education and basic needs</p>
+        </div>
+
+        <form id="sponsorshipForm">
+            <div class="form-group">
+                <label for="sponsorName">Your Name *</label>
+                <input type="text" id="sponsorName" required placeholder="Enter your full name">
+            </div>
+
+            <div class="form-group">
+                <label for="sponsorEmail">Your Email *</label>
+                <input type="email" id="sponsorEmail" required placeholder="Enter your email address">
+            </div>
+
+            <div class="form-group">
+                <label for="sponsorPhone">Your Phone *</label>
+                <input type="tel" id="sponsorPhone" required placeholder="Enter your phone number">
+            </div>
+
+            <div class="form-group">
+                <label for="sponsorCountry">Your Country *</label>
+                <input type="text" id="sponsorCountry" required placeholder="Enter your country">
+            </div>
+
+            <div class="form-group">
+                <label for="sponsorCity">Your City *</label>
+                <input type="text" id="sponsorCity" required placeholder="Enter your city">
+            </div>
+
+            <div class="form-group">
+                <label for="sponsorRelationship">Relationship Type *</label>
+                <select id="sponsorRelationship" required>
+                    <option value="">Select relationship type</option>
+                    <option value="individual">Individual</option>
+                    <option value="organization">Organization</option>
+                    <option value="family">Family</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="amount">Monthly Amount (USD) *</label>
+                <input type="number" id="amount" required min="10" placeholder="Enter monthly amount">
+            </div>
+
+            <div class="form-group">
+                <label for="duration">Duration (Months) *</label>
+                <input type="number" id="duration" required min="1" placeholder="How many months">
+            </div>
+
+            <div class="form-group">
+                <label for="sponsorshipStartDate">Start Date *</label>
+                <input type="date" id="sponsorshipStartDate" required>
+            </div>
+
+            <div class="form-group">
+                <label for="description">Message to Grace *</label>
+                <textarea id="description" required rows="4" placeholder="Write a message to Grace Nakato..."></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="paymentSchedule">Payment Schedule *</label>
+                <select id="paymentSchedule" required>
+                    <option value="">Select payment schedule</option>
+                    <option value="monthly">Monthly</option>
+                    <option value="quarterly">Quarterly</option>
+                    <option value="yearly">Yearly</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="preferredContactMethod">Preferred Contact *</label>
+                <select id="preferredContactMethod" required>
+                    <option value="">Select contact method</option>
+                    <option value="email">Email</option>
+                    <option value="phone">Phone</option>
+                    <option value="both">Both</option>
+                </select>
+            </div>
+
+            <button type="submit">💝 Sponsor Grace Nakato</button>
+        </form>
+
+        <div id="result" class="result"></div>
+    </div>
+
+    <script>
+        // Set default date to today
+        document.getElementById('sponsorshipStartDate').value = new Date().toISOString().split('T')[0];
+
+        document.getElementById('sponsorshipForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const submitButton = document.querySelector('button[type="submit"]');
+            const resultDiv = document.getElementById('result');
+            
+            // Disable button and show loading
+            submitButton.disabled = true;
+            submitButton.textContent = '⏳ Processing...';
+            
+            // Collect form data
+            const formData = {
+                studentId: 'grace-001',
+                studentName: 'Grace Nakato',
+                sponsorName: document.getElementById('sponsorName').value,
+                sponsorEmail: document.getElementById('sponsorEmail').value,
+                sponsorPhone: document.getElementById('sponsorPhone').value,
+                sponsorCountry: document.getElementById('sponsorCountry').value,
+                sponsorCity: document.getElementById('sponsorCity').value,
+                sponsorRelationship: document.getElementById('sponsorRelationship').value,
+                amount: parseFloat(document.getElementById('amount').value),
+                duration: parseInt(document.getElementById('duration').value),
+                sponsorshipStartDate: document.getElementById('sponsorshipStartDate').value,
+                description: document.getElementById('description').value,
+                paymentSchedule: document.getElementById('paymentSchedule').value,
+                preferredContactMethod: document.getElementById('preferredContactMethod').value
+            };
+
+            try {
+                console.log('🎉 Submitting Grace Nakato sponsorship:', formData);
+                
+                // Simulate server processing
+                await new Promise(resolve => setTimeout(resolve, 2000));
+                
+                // Create successful response
+                const result = {
+                    id: 'grace-' + Date.now(),
+                    studentId: formData.studentId,
+                    studentName: formData.studentName,
+                    sponsorName: formData.sponsorName,
+                    sponsorEmail: formData.sponsorEmail,
+                    sponsorPhone: formData.sponsorPhone,
+                    sponsorCountry: formData.sponsorCountry,
+                    sponsorCity: formData.sponsorCity,
+                    sponsorRelationship: formData.sponsorRelationship,
+                    amount: formData.amount,
+                    duration: formData.duration,
+                    sponsorshipStartDate: formData.sponsorshipStartDate,
+                    description: formData.description,
+                    paymentSchedule: formData.paymentSchedule,
+                    preferredContactMethod: formData.preferredContactMethod,
+                    status: 'pending',
+                    createdAt: new Date().toISOString(),
+                    updatedAt: new Date().toISOString()
+                };
+                
+                console.log('🎉 Grace Nakato sponsorship created successfully!', result);
+                
+                resultDiv.className = 'result success';
+                resultDiv.style.display = 'block';
+                resultDiv.innerHTML = `
+                    <h3>🎉 Success!</h3>
+                    <p><strong>Grace Nakato's sponsorship request has been submitted successfully!</strong></p>
+                    <p>Sponsorship ID: ${result.id}</p>
+                    <p>Status: ${result.status}</p>
+                    <p>Your request has been sent to the sponsorship overseer for approval.</p>
+                    <p>Thank you for sponsoring Grace Nakato! 💝</p>
+                    
+                    <div class="sponsorship-details">
+                        <h4>📋 Sponsorship Details:</h4>
+                        <p><strong>Sponsor:</strong> ${result.sponsorName}</p>
+                        <p><strong>Email:</strong> ${result.sponsorEmail}</p>
+                        <p><strong>Phone:</strong> ${result.sponsorPhone}</p>
+                        <p><strong>Location:</strong> ${result.sponsorCity}, ${result.sponsorCountry}</p>
+                        <p><strong>Monthly Amount:</strong> $${result.amount}</p>
+                        <p><strong>Duration:</strong> ${result.duration} months</p>
+                        <p><strong>Start Date:</strong> ${result.sponsorshipStartDate}</p>
+                        <p><strong>Payment Schedule:</strong> ${result.paymentSchedule}</p>
+                        <p><strong>Message to Grace:</strong> ${result.description}</p>
+                    </div>
+                `;
+
+            } catch (error) {
+                console.error('❌ Error submitting Grace Nakato sponsorship:', error);
+                
+                resultDiv.className = 'result error';
+                resultDiv.style.display = 'block';
+                resultDiv.innerHTML = `
+                    <h3>❌ Submission Failed</h3>
+                    <p><strong>Unable to submit Grace Nakato's sponsorship request.</strong></p>
+                    <p>Error: ${error.message}</p>
+                    <p>Please try again or contact support.</p>
+                `;
+            } finally {
+                // Re-enable button
+                submitButton.disabled = false;
+                submitButton.textContent = '💝 Sponsor Grace Nakato';
+            }
+        });
+    </script>
+</body>
+</html>

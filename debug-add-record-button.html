@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug Add Record Button</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .debug-section {
+            margin: 20px 0;
+            padding: 20px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            background: #f9f9f9;
+        }
+        .debug-section h3 {
+            color: #555;
+            margin-top: 0;
+        }
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px 5px;
+            transition: transform 0.2s;
+        }
+        button:hover {
+            transform: translateY(-2px);
+        }
+        .result {
+            margin: 10px 0;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: monospace;
+            white-space: pre-wrap;
+        }
+        .success {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+        .error {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+        .info {
+            background: #d1ecf1;
+            border: 1px solid #bee5eb;
+            color: #0c5460;
+        }
+        .warning {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            color: #856404;
+        }
+        .test-button {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            padding: 15px 30px;
+            font-size: 18px;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 Debug Add Record Button</h1>
+        
+        <div class="debug-section">
+            <h3>Test Add Record Button Functionality</h3>
+            <button class="test-button" onclick="testAddRecordButton()">Test Add Record Button</button>
+            <div id="test-result"></div>
+        </div>
+
+        <div class="debug-section">
+            <h3>Common Issues & Solutions</h3>
+            <div class="result info">
+<strong>Possible causes for Add Record button not working:</strong>
+
+1. <strong>User Role Issue:</strong>
+   - Button only shows if user.role === 'nurse'
+   - Check if user is logged in as a nurse
+   - Verify user role in browser console
+
+2. <strong>JavaScript Errors:</strong>
+   - Check browser console for errors
+   - Look for React errors or TypeScript issues
+   - Verify all imports are working
+
+3. <strong>State Management:</strong>
+   - setShowAddForm might not be working
+   - Check if showAddForm state is updating
+   - Verify modal is rendering correctly
+
+4. <strong>Frontend Server Issues:</strong>
+   - Make sure frontend is running on port 5173
+   - Check if there are build errors
+   - Verify all dependencies are installed
+
+<strong>Debug Steps:</strong>
+1. Open browser developer tools (F12)
+2. Go to Console tab
+3. Look for any red error messages
+4. Try clicking the Add Record button
+5. Check if any errors appear in console
+6. Verify user role in Application/Storage tab
+            </div>
+        </div>
+
+        <div class="debug-section">
+            <h3>Quick Fixes to Try</h3>
+            <div class="result warning">
+<strong>If the button is not working, try these fixes:</strong>
+
+1. <strong>Check User Role:</strong>
+   - Make sure you're logged in as a nurse
+   - If not, log out and log back in as a nurse
+
+2. <strong>Refresh the Page:</strong>
+   - Hard refresh (Ctrl+F5) to clear cache
+   - Check if the issue persists
+
+3. <strong>Check Console Errors:</strong>
+   - Open F12 → Console
+   - Look for any red error messages
+   - Report any errors you see
+
+4. <strong>Verify Frontend Server:</strong>
+   - Make sure frontend is running on localhost:5173
+   - Check if you can access the page normally
+
+5. <strong>Check Network Tab:</strong>
+   - Open F12 → Network
+   - Try clicking the button
+   - See if any requests are made
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function testAddRecordButton() {
+            const resultDiv = document.getElementById('test-result');
+            
+            // Test if we can access the frontend
+            fetch('http://localhost:5173')
+                .then(response => {
+                    if (response.ok) {
+                        resultDiv.innerHTML = `
+                            <div class="result success">
+                                ✅ <strong>Frontend is accessible!</strong>
+                                
+                                <strong>Next steps to debug:</strong>
+                                1. Open the clinic management page
+                                2. Open browser developer tools (F12)
+                                3. Go to Console tab
+                                4. Try clicking the "Add Record" button
+                                5. Check for any error messages
+                                6. Verify your user role is "nurse"
+                                
+                                <strong>If button still doesn't work:</strong>
+                                - Check if you're logged in as a nurse
+                                - Look for JavaScript errors in console
+                                - Try refreshing the page
+                                - Check if the modal appears but is hidden
+                            </div>
+                        `;
+                    } else {
+                        resultDiv.innerHTML = `
+                            <div class="result error">
+                                ❌ <strong>Frontend not accessible!</strong>
+                                
+                                Make sure the frontend server is running:
+                                1. Open terminal in frontend directory
+                                2. Run: npm run dev
+                                3. Wait for server to start on port 5173
+                                4. Try again
+                            </div>
+                        `;
+                    }
+                })
+                .catch(error => {
+                    resultDiv.innerHTML = `
+                        <div class="result error">
+                            ❌ <strong>Cannot connect to frontend!</strong>
+                            
+                            Error: ${error.message}
+                            
+                            <strong>Make sure:</strong>
+                            1. Frontend server is running on port 5173
+                            2. No firewall is blocking the connection
+                            3. Try accessing http://localhost:5173 directly
+                        </div>
+                    `;
+                });
+        }
+
+        // Auto-run test on page load
+        window.addEventListener('load', () => {
+            setTimeout(testAddRecordButton, 1000);
+        });
+    </script>
+</body>
+</html>

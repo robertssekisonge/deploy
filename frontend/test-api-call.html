@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test API Call</title>
+</head>
+<body>
+    <h1>Testing Payment Summary API</h1>
+    <div id="result">Loading...</div>
+    
+    <script>
+        async function testAPI() {
+            try {
+                console.log('🔍 Testing payment summary API...');
+                
+                // Test the same endpoint the frontend uses
+                const response = await fetch('http://localhost:5000/api/payments/student/21/summary');
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    console.log('✅ API Response:', data);
+                    console.log('📊 Payment Breakdown:', data.paymentBreakdown);
+                    
+                    const hasMedical = data.paymentBreakdown.some(item => 
+                        item.feeName?.toLowerCase().includes('medical')
+                    );
+                    
+                    console.log('🔍 Has Medical Fee:', hasMedical);
+                    
+                    document.getElementById('result').innerHTML = `
+                        <h2>✅ API Test Results</h2>
+                        <p><strong>Total Items:</strong> ${data.paymentBreakdown.length}</p>
+                        <p><strong>Items:</strong></p>
+                        <ul>
+                            ${data.paymentBreakdown.map(item => 
+                                `<li>${item.feeName}: UGX ${item.required} (${item.term} ${item.year})</li>`
+                            ).join('')}
+                        </ul>
+                        <p><strong>Has Medical Fee:</strong> ${hasMedical ? '❌ YES' : '✅ NO'}</p>
+                        <p><strong>Total Required:</strong> UGX ${data.totalFeesRequired}</p>
+                    `;
+                    
+                } else {
+                    console.error('❌ API Error:', response.status, response.statusText);
+                    document.getElementById('result').innerHTML = `
+                        <h2>❌ API Error</h2>
+                        <p>Status: ${response.status}</p>
+                        <p>Status Text: ${response.statusText}</p>
+                    `;
+                }
+                
+            } catch (error) {
+                console.error('❌ Error:', error);
+                document.getElementById('result').innerHTML = `
+                    <h2>❌ Error</h2>
+                    <p>${error.message}</p>
+                `;
+            }
+        }
+        
+        // Run the test
+        testAPI();
+    </script>
+</body>
+</html>
+
+
+

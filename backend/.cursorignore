@@ -1,0 +1,3 @@
+# Explicitly allow .env files
+!.env
+!**/.env 

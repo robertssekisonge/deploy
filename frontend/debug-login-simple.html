@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug Login - Simple</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+        }
+        .test-section {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            border-left: 4px solid #007bff;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+            font-size: 14px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        .success { background: #28a745; }
+        .error { background: #dc3545; }
+        .warning { background: #ffc107; color: #333; }
+        
+        .result {
+            background: #e9ecef;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 10px 0;
+            font-family: monospace;
+            white-space: pre-wrap;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .success-result {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .error-result {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 Debug Login - Simple Test</h1>
+        
+        <div class="test-section">
+            <h3>🔐 Test Login API</h3>
+            <button onclick="testRobsLogin()">Test Robs Login (robs@school.com / hub h123)</button>
+            <button onclick="testAdminLogin()">Test Admin Login (admin@school.com / hub h123)</button>
+            <button onclick="testWrongPassword()">Test Wrong Password (robs@school.com / wrong)</button>
+            <button onclick="testNonExistent()">Test Non-existent User</button>
+            <div id="loginResult" class="result"></div>
+        </div>
+        
+        <div class="test-section">
+            <h3>🏥 Test Backend Health</h3>
+            <button onclick="testHealth()">Test Backend Health</button>
+            <button onclick="testDatabase()">Test Database Connection</button>
+            <div id="healthResult" class="result"></div>
+        </div>
+        
+        <div class="test-section">
+            <h3>🧹 Clear & Reset</h3>
+            <button onclick="clearStorage()">Clear Local Storage</button>
+            <button onclick="showStorage()">Show Current Storage</button>
+            <div id="storageResult" class="result"></div>
+        </div>
+    </div>
+
+    <script>
+        function showResult(elementId, message, isSuccess = false) {
+            const element = document.getElementById(elementId);
+            element.textContent = message;
+            element.className = `result ${isSuccess ? 'success-result' : 'error-result'}`;
+        }
+
+        async function testRobsLogin() {
+            showResult('loginResult', '🔄 Testing Robs login...');
+            
+            try {
+                const response = await fetch('http://localhost:5000/api/auth/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        email: 'robs@school.com',
+                        password: 'hub h123'
+                    }),
+                });
+                
+                const data = await response.json();
+                
+                const result = `📧 Email: robs@school.com
+🔑 Password: hub h123
+📡 Status: ${response.status}
+📋 Response: ${JSON.stringify(data, null, 2)}
+⏰ Time: ${new Date().toISOString()}`;
+                
+                showResult('loginResult', result, response.ok);
+                
+            } catch (error) {
+                showResult('loginResult', `❌ Network Error: ${error.message}`);
+            }
+        }
+
+        async function testAdminLogin() {
+            showResult('loginResult', '🔄 Testing Admin login...');
+            
+            try {
+                const response = await fetch('http://localhost:5000/api/auth/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        email: 'admin@school.com',
+                        password: 'hub h123'
+                    }),
+                });
+                
+                const data = await response.json();
+                
+                const result = `📧 Email: admin@school.com
+🔑 Password: hub h123
+📡 Status: ${response.status}
+📋 Response: ${JSON.stringify(data, null, 2)}
+⏰ Time: ${new Date().toISOString()}`;
+                
+                showResult('loginResult', result, response.ok);
+                
+            } catch (error) {
+                showResult('loginResult', `❌ Network Error: ${error.message}`);
+            }
+        }
+
+        async function testWrongPassword() {
+            showResult('loginResult', '🔄 Testing wrong password...');
+            
+            try {
+                const response = await fetch('http://localhost:5000/api/auth/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        email: 'robs@school.com',
+                        password: 'wrongpassword'
+                    }),
+                });
+                
+                const data = await response.json();
+                
+                const result = `📧 Email: robs@school.com
+🔑 Password: wrongpassword
+📡 Status: ${response.status}
+📋 Response: ${JSON.stringify(data, null, 2)}
+⏰ Time: ${new Date().toISOString()}`;
+                
+                showResult('loginResult', result, response.ok);
+                
+            } catch (error) {
+                showResult('loginResult', `❌ Network Error: ${error.message}`);
+            }
+        }
+
+        async function testNonExistent() {
+            showResult('loginResult', '🔄 Testing non-existent user...');
+            
+            try {
+                const response = await fetch('http://localhost:5000/api/auth/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        email: 'nonexistent@test.com',
+                        password: 'password'
+                    }),
+                });
+                
+                const data = await response.json();
+                
+                const result = `📧 Email: nonexistent@test.com
+🔑 Password: password
+📡 Status: ${response.status}
+📋 Response: ${JSON.stringify(data, null, 2)}
+⏰ Time: ${new Date().toISOString()}`;
+                
+                showResult('loginResult', result, response.ok);
+                
+            } catch (error) {
+                showResult('loginResult', `❌ Network Error: ${error.message}`);
+            }
+        }
+
+        async function testHealth() {
+            showResult('healthResult', '🔄 Testing backend health...');
+            
+            try {
+                const response = await fetch('http://localhost:5000/api/health');
+                const data = await response.json();
+                
+                const result = `🏥 Backend Health Check
+📡 Status: ${response.status}
+📋 Response: ${JSON.stringify(data, null, 2)}
+⏰ Time: ${new Date().toISOString()}`;
+                
+                showResult('healthResult', result, response.ok);
+                
+            } catch (error) {
+                showResult('healthResult', `❌ Backend not running: ${error.message}`);
+            }
+        }
+
+        async function testDatabase() {
+            showResult('healthResult', '🔄 Testing database connection...');
+            
+            try {
+                const response = await fetch('http://localhost:5000/api/test-db');
+                const data = await response.json();
+                
+                const result = `🗄️ Database Connection Test
+📡 Status: ${response.status}
+📋 Response: ${JSON.stringify(data, null, 2)}
+⏰ Time: ${new Date().toISOString()}`;
+                
+                showResult('healthResult', result, response.ok);
+                
+            } catch (error) {
+                showResult('healthResult', `❌ Database test failed: ${error.message}`);
+            }
+        }
+
+        function clearStorage() {
+            localStorage.clear();
+            sessionStorage.clear();
+            showResult('storageResult', '🧹 Storage cleared successfully!');
+        }
+
+        function showStorage() {
+            const user = localStorage.getItem('user');
+            const result = `📦 Current Storage:
+localStorage.user: ${user ? 'EXISTS' : 'NOT FOUND'}
+sessionStorage.user: ${sessionStorage.getItem('user') ? 'EXISTS' : 'NOT FOUND'}
+
+${user ? `User Data: ${user}` : 'No user data found'}`;
+            
+            showResult('storageResult', result);
+        }
+
+        // Auto-run health check on page load
+        window.onload = function() {
+            testHealth();
+        };
+    </script>
+</body>
+</html> 

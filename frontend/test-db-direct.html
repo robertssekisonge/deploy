@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Direct Database Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .container {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 30px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+        }
+        .status {
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 8px;
+            font-weight: bold;
+        }
+        .success { background: rgba(76, 175, 80, 0.8); }
+        .error { background: rgba(244, 67, 54, 0.8); }
+        .info { background: rgba(33, 150, 243, 0.8); }
+        button {
+            background: #4CAF50;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px 5px;
+        }
+        button:hover { background: #45a049; }
+        .log {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            font-family: monospace;
+            font-size: 12px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 Direct Database Test</h1>
+        <p>Testing the backend with your password "hub h"</p>
+        
+        <div class="status info">
+            <h3>📋 Current Configuration</h3>
+            <p><strong>Database URL:</strong> postgresql://postgres:hub%20h@localhost:5432/schooldb</p>
+            <p><strong>Password:</strong> hub h (URL encoded as hub%20h)</p>
+            <p><strong>Database:</strong> schooldb</p>
+        </div>
+
+        <button onclick="testHealth()">Test Health Check</button>
+        <button onclick="testDatabase()">Test Database</button>
+        <button onclick="testLogin()">Test Login</button>
+        <button onclick="testUsers()">Test Users</button>
+        <button onclick="clearLog()">Clear Log</button>
+
+        <div id="results" class="status info">
+            <h3>🔍 Test Results</h3>
+            <div id="health-result">⏳ Waiting...</div>
+            <div id="db-result">⏳ Waiting...</div>
+            <div id="login-result">⏳ Waiting...</div>
+            <div id="users-result">⏳ Waiting...</div>
+        </div>
+
+        <div class="log">
+            <h3>📝 Detailed Log</h3>
+            <div id="log"></div>
+        </div>
+    </div>
+
+    <script>
+        function log(message) {
+            const logDiv = document.getElementById('log');
+            const timestamp = new Date().toLocaleTimeString();
+            logDiv.innerHTML += `[${timestamp}] ${message}\n`;
+            logDiv.scrollTop = logDiv.scrollHeight;
+        }
+
+        function clearLog() {
+            document.getElementById('log').innerHTML = '';
+        }
+
+        async function testHealth() {
+            log('=== Testing Health Check ===');
+            document.getElementById('health-result').innerHTML = '🔄 Testing...';
+            
+            try {
+                const response = await fetch('http://localhost:5000/api/health', {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    }
+                });
+                
+                log(`Response status: ${response.status}`);
+                log(`Response headers: ${JSON.stringify([...response.headers.entries()])}`);
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    log(`✅ Health check successful: ${JSON.stringify(data)}`);
+                    document.getElementById('health-result').innerHTML = '✅ Health: Working';
+                } else {
+                    const errorText = await response.text();
+                    log(`❌ Health check failed: ${response.status} - ${errorText}`);
+                    document.getElementById('health-result').innerHTML = `❌ Health: Error ${response.status}`;
+                }
+            } catch (error) {
+                log(`❌ Health check exception: ${error.message}`);
+                document.getElementById('health-result').innerHTML = '❌ Health: Connection Failed';
+            }
+        }
+
+        async function testDatabase() {
+            log('=== Testing Database Connection ===');
+            document.getElementById('db-result').innerHTML = '🔄 Testing...';
+            
+            try {
+                const response = await fetch('http://localhost:5000/api/test-db', {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    }
+                });
+                
+                log(`Response status: ${response.status}`);
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    log(`✅ Database test successful: ${JSON.stringify(data)}`);
+                    document.getElementById('db-result').innerHTML = '✅ Database: Connected';
+                } else {
+                    const errorText = await response.text();
+                    log(`❌ Database test failed: ${response.status} - ${errorText}`);
+                    document.getElementById('db-result').innerHTML = `❌ Database: Error ${response.status}`;
+                }
+            } catch (error) {
+                log(`❌ Database test exception: ${error.message}`);
+                document.getElementById('db-result').innerHTML = '❌ Database: Connection Failed';
+            }
+        }
+
+        async function testLogin() {
+            log('=== Testing Login ===');
+            document.getElementById('login-result').innerHTML = '🔄 Testing...';
+            
+            try {
+                const response = await fetch('http://localhost:5000/api/auth/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        email: 'admin@school.com',
+                        password: 'admin123'
+                    })
+                });
+                
+                log(`Response status: ${response.status}`);
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    log(`✅ Login successful: ${JSON.stringify(data)}`);
+                    document.getElementById('login-result').innerHTML = '✅ Login: Successful';
+                } else {
+                    const errorData = await response.json();
+                    log(`❌ Login failed: ${JSON.stringify(errorData)}`);
+                    document.getElementById('login-result').innerHTML = '❌ Login: Failed';
+                }
+            } catch (error) {
+                log(`❌ Login exception: ${error.message}`);
+                document.getElementById('login-result').innerHTML = '❌ Login: Connection Failed';
+            }
+        }
+
+        async function testUsers() {
+            log('=== Testing Users API ===');
+            document.getElementById('users-result').innerHTML = '🔄 Testing...';
+            
+            try {
+                const response = await fetch('http://localhost:5000/api/users', {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    }
+                });
+                
+                log(`Response status: ${response.status}`);
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    log(`✅ Users API successful: Found ${data.length} users`);
+                    document.getElementById('users-result').innerHTML = `✅ Users: ${data.length} found`;
+                } else {
+                    const errorText = await response.text();
+                    log(`❌ Users API failed: ${response.status} - ${errorText}`);
+                    document.getElementById('users-result').innerHTML = `❌ Users: Error ${response.status}`;
+                }
+            } catch (error) {
+                log(`❌ Users API exception: ${error.message}`);
+                document.getElementById('users-result').innerHTML = '❌ Users: Connection Failed';
+            }
+        }
+
+        // Auto-run tests
+        window.onload = function() {
+            log('Page loaded, starting tests...');
+            setTimeout(testHealth, 1000);
+            setTimeout(testDatabase, 2000);
+            setTimeout(testLogin, 3000);
+            setTimeout(testUsers, 4000);
+        };
+    </script>
+</body>
+</html> 

@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Teacher Rose Data</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-section { margin: 20px 0; padding: 20px; border: 1px solid #ccc; border-radius: 5px; }
+        .success { background-color: #d4edda; border-color: #c3e6cb; }
+        .error { background-color: #f8d7da; border-color: #f5c6cb; }
+        .info { background-color: #d1ecf1; border-color: #bee5eb; }
+        pre { background-color: #f8f9fa; padding: 10px; border-radius: 3px; overflow-x: auto; }
+    </style>
+</head>
+<body>
+    <h1>Test Teacher Rose Data and Timetable</h1>
+    
+    <div class="test-section info">
+        <h2>Current State</h2>
+        <p>Testing Teacher Rose's user data and timetable access.</p>
+    </div>
+
+    <div class="test-section">
+        <h2>Test 1: Backend Timetables</h2>
+        <p>Check what timetables exist in the backend:</p>
+        <pre id="backend-timetables"></pre>
+        <button onclick="testBackendTimetables()">Check Backend</button>
+    </div>
+
+    <div class="test-section">
+        <h2>Test 2: Simulate Teacher Rose Login</h2>
+        <p>Test the filtering logic with Teacher Rose's data:</p>
+        <pre id="teacher-rose-test"></pre>
+        <button onclick="testTeacherRose()">Test Teacher Rose</button>
+    </div>
+
+    <div class="test-section">
+        <h2>Test 3: Create Demo User Data</h2>
+        <p>Create proper user data for Teacher Rose:</p>
+        <pre id="demo-user-creation"></pre>
+        <button onclick="createDemoUser()">Create Demo User</button>
+    </div>
+
+    <script>
+        // Test 1: Backend Timetables
+        async function testBackendTimetables() {
+            try {
+                const response = await fetch('http://localhost:5000/api/timetables');
+                if (response.ok) {
+                    const data = await response.json();
+                    document.getElementById('backend-timetables').textContent = 
+                        `✅ Backend API working\nStatus: ${response.status}\nTimetables found: ${data.length}\n\nData: ${JSON.stringify(data, null, 2)}`;
+                } else {
+                    document.getElementById('backend-timetables').textContent = 
+                        `❌ Backend API error\nStatus: ${response.status}\nStatusText: ${response.statusText}`;
+                }
+            } catch (error) {
+                document.getElementById('backend-timetables').textContent = 
+                    `❌ Backend API connection failed\nError: ${error.message}`;
+            }
+        }
+
+        // Test 2: Simulate Teacher Rose
+        function testTeacherRose() {
+            // Simulate the current user data structure
+            const currentUser = {
+                id: '1',
+                name: 'Teacher Rose',
+                role: 'USER',
+                // Try different assignment structures
+                assignedClasses: null,
+                assignedStream: null
+            };
+
+            // Simulate the timetable data from backend
+            const timetables = [
+                {
+                    id: 1,
+                    day: 'Monday',
+                    startTime: '08:00',
+                    endTime: '09:00',
+                    subject: 'Mathematics',
+                    teacherId: '1', // Teacher Rose's ID
+                    teacherName: 'Teacher Rose',
+                    classId: '1',
+                    streamId: 's1a',
+                    className: 'Senior 1',
+                    streamName: 'A',
+                    room: 'Room 101',
+                    duration: 60
+                }
+            ];
+
+            // Test the filtering logic
+            const teacherTimetables = timetables.filter(t => t.teacherId === currentUser.id);
+            
+            const result = {
+                currentUser: currentUser,
+                totalTimetables: timetables.length,
+                teacherTimetables: teacherTimetables,
+                hasAssignedClasses: currentUser.assignedClasses && currentUser.assignedClasses.length > 0,
+                hasAssignedStream: currentUser.assignedStream,
+                issue: 'Teacher Rose has no assignedClasses or assignedStream, but has timetables in backend'
+            };
+
+            document.getElementById('teacher-rose-test').textContent = JSON.stringify(result, null, 2);
+        }
+
+        // Test 3: Create Demo User
+        function createDemoUser() {
+            const demoUser = {
+                id: '1',
+                name: 'Teacher Rose',
+                role: 'USER',
+                assignedClasses: [
+                    {
+                        id: '1',
+                        classId: '1',
+                        streamId: 's1a',
+                        className: 'Senior 1',
+                        streamName: 'A',
+                        subjects: ['Mathematics', 'Physics', 'Chemistry', 'Biology'],
+                        isMainTeacher: true
+                    }
+                ]
+            };
+
+            const result = {
+                demoUser: demoUser,
+                assignedClassesCount: demoUser.assignedClasses.length,
+                firstAssignment: demoUser.assignedClasses[0],
+                recommendation: 'This user structure should work with the current filtering logic'
+            };
+
+            document.getElementById('demo-user-creation').textContent = JSON.stringify(result, null, 2);
+        }
+
+        // Run initial tests
+        window.onload = function() {
+            testBackendTimetables();
+            testTeacherRose();
+        };
+    </script>
+</body>
+</html>

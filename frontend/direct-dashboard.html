@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Direct Dashboard Access</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .container {
+            background: white;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+        }
+        .dashboard-section {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border-left: 4px solid #007bff;
+        }
+        .dashboard-section h3 {
+            margin-top: 0;
+            color: #333;
+        }
+        .status {
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+        .success { background: #d4edda; color: #155724; }
+        .error { background: #f8d7da; color: #721c24; }
+        .info { background: #d1ecf1; color: #0c5460; }
+        
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 15px 25px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin: 10px;
+            font-size: 16px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+        button:hover {
+            background: #0056b3;
+            transform: translateY(-2px);
+        }
+        .admin-btn { background: #6f42c1; }
+        .admin-btn:hover { background: #5a2d91; }
+        .teacher-btn { background: #28a745; }
+        .teacher-btn:hover { background: #1e7e34; }
+        .parent-btn { background: #fd7e14; }
+        .parent-btn:hover { background: #e55a00; }
+        
+        .user-info {
+            background: #e9ecef;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+        }
+        .user-info h4 {
+            margin-top: 0;
+            color: #333;
+        }
+        .user-info p {
+            margin: 5px 0;
+            font-family: monospace;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 Direct Dashboard Access</h1>
+        
+        <div class="dashboard-section">
+            <h3>👤 Current User</h3>
+            <div id="userInfo" class="user-info">
+                <h4>Loading user info...</h4>
+            </div>
+        </div>
+        
+        <div class="dashboard-section">
+            <h3>🔐 Quick Login & Dashboard</h3>
+            <button class="admin-btn" onclick="loginAndGo('admin@school.com', 'hub h123')">
+                👑 Login as Admin
+            </button>
+            <button class="teacher-btn" onclick="loginAndGo('jane.smith@school.com', 'password123')">
+                👨‍🏫 Login as Super Teacher
+            </button>
+            <button class="parent-btn" onclick="loginAndGo('parent@test.com', 'hub h123')">
+                👨‍👩‍👧‍👦 Login as Parent
+            </button>
+            <button class="parent-btn" onclick="loginAndGo('rose@school.com', 'password')">
+                🌹 Login as Parent Rose
+            </button>
+            <div id="loginStatus" class="status" style="display: none;"></div>
+        </div>
+        
+        <div class="dashboard-section">
+            <h3>🎯 Direct Access (If Already Logged In)</h3>
+            <button onclick="goToDashboard()">📊 Go to Dashboard</button>
+            <button onclick="goToAnalytics()">📈 Go to Analytics</button>
+            <button onclick="goToMessages()">💬 Go to Messages</button>
+            <button onclick="goToLiveChat()">💭 Go to Live Chat</button>
+            <div id="accessStatus" class="status" style="display: none;"></div>
+        </div>
+        
+        <div class="dashboard-section">
+            <h3>🔧 Troubleshooting</h3>
+            <button onclick="forceReload()">🔄 Force Reload App</button>
+            <button onclick="clearAndReload()">🧹 Clear Data & Reload</button>
+            <button onclick="openInNewTab()">🆕 Open in New Tab</button>
+        </div>
+    </div>
+
+    <script>
+        function showStatus(elementId, message, type) {
+            const element = document.getElementById(elementId);
+            element.innerHTML = message;
+            element.className = `status ${type}`;
+            element.style.display = 'block';
+        }
+
+        function updateUserInfo() {
+            const user = localStorage.getItem('user');
+            const userInfoDiv = document.getElementById('userInfo');
+            
+            if (user) {
+                try {
+                    const userData = JSON.parse(user);
+                    userInfoDiv.innerHTML = `
+                        <h4>✅ Logged In</h4>
+                        <p><strong>Name:</strong> ${userData.name}</p>
+                        <p><strong>Email:</strong> ${userData.email}</p>
+                        <p><strong>Role:</strong> ${userData.role}</p>
+                        <p><strong>ID:</strong> ${userData.id}</p>
+                    `;
+                } catch (e) {
+                    userInfoDiv.innerHTML = `
+                        <h4>⚠️ User Data Error</h4>
+                        <p>Could not parse user data</p>
+                    `;
+                }
+            } else {
+                userInfoDiv.innerHTML = `
+                    <h4>🔓 Not Logged In</h4>
+                    <p>Please login to access dashboard</p>
+                `;
+            }
+        }
+
+        async function loginAndGo(email, password) {
+            showStatus('loginStatus', `🔄 Logging in as ${email}...`, 'info');
+            
+            try {
+                // Clear any existing session
+                localStorage.clear();
+                sessionStorage.clear();
+                
+                // Login to backend
+                const response = await fetch('http://localhost:5000/api/auth/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ email, password }),
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    // Store user data
+                    localStorage.setItem('user', JSON.stringify(data));
+                    
+                    showStatus('loginStatus', `✅ Login successful! Redirecting to dashboard...`, 'success');
+                    
+                    // Update user info
+                    updateUserInfo();
+                    
+                    // Redirect to dashboard after a short delay
+                    setTimeout(() => {
+                        window.location.href = 'http://localhost:5176/dashboard';
+                    }, 1500);
+                } else {
+                    showStatus('loginStatus', `❌ Login failed: ${data.error || data.message}`, 'error');
+                }
+            } catch (error) {
+                showStatus('loginStatus', `❌ Network error: ${error.message}`, 'error');
+            }
+        }
+
+        function goToDashboard() {
+            const user = localStorage.getItem('user');
+            if (!user) {
+                showStatus('accessStatus', '❌ Please login first', 'error');
+                return;
+            }
+            
+            showStatus('accessStatus', '🔄 Redirecting to dashboard...', 'info');
+            window.location.href = 'http://localhost:5176/dashboard';
+        }
+
+        function goToAnalytics() {
+            const user = localStorage.getItem('user');
+            if (!user) {
+                showStatus('accessStatus', '❌ Please login first', 'error');
+                return;
+            }
+            
+            showStatus('accessStatus', '🔄 Redirecting to analytics...', 'info');
+            window.location.href = 'http://localhost:5176/analytics';
+        }
+
+        function goToMessages() {
+            const user = localStorage.getItem('user');
+            if (!user) {
+                showStatus('accessStatus', '❌ Please login first', 'error');
+                return;
+            }
+            
+            showStatus('accessStatus', '🔄 Redirecting to messages...', 'info');
+            window.location.href = 'http://localhost:5176/messages';
+        }
+
+        function goToLiveChat() {
+            const user = localStorage.getItem('user');
+            if (!user) {
+                showStatus('accessStatus', '❌ Please login first', 'error');
+                return;
+            }
+            
+            showStatus('accessStatus', '🔄 Redirecting to live chat...', 'info');
+            window.location.href = 'http://localhost:5176/live-chat';
+        }
+
+        function forceReload() {
+            showStatus('accessStatus', '🔄 Force reloading application...', 'info');
+            window.location.reload(true);
+        }
+
+        function clearAndReload() {
+            localStorage.clear();
+            sessionStorage.clear();
+            showStatus('accessStatus', '🧹 Data cleared, reloading...', 'info');
+            setTimeout(() => {
+                window.location.reload(true);
+            }, 1000);
+        }
+
+        function openInNewTab() {
+            const user = localStorage.getItem('user');
+            if (user) {
+                window.open('http://localhost:5176/dashboard', '_blank');
+            } else {
+                window.open('http://localhost:5176/login', '_blank');
+            }
+        }
+
+        // Initialize
+        window.onload = function() {
+            updateUserInfo();
+        };
+    </script>
+</body>
+</html> 

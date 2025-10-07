@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple Login Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .container {
+            background: white;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            max-width: 400px;
+            width: 100%;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #333;
+            font-weight: bold;
+        }
+        input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+        button {
+            width: 100%;
+            padding: 12px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 10px;
+        }
+        button:hover {
+            background: #5a6fd8;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 10px;
+            border-radius: 5px;
+            text-align: center;
+        }
+        .success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .test-accounts {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 5px;
+        }
+        .test-accounts h3 {
+            margin-top: 0;
+            color: #333;
+        }
+        .account {
+            margin: 5px 0;
+            padding: 5px;
+            background: white;
+            border-radius: 3px;
+            font-family: monospace;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔐 Login Test</h1>
+        
+        <form id="loginForm">
+            <div class="form-group">
+                <label for="email">Email:</label>
+                <input type="email" id="email" name="email" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="password">Password:</label>
+                <input type="password" id="password" name="password" required>
+            </div>
+            
+            <button type="submit">Login</button>
+        </form>
+        
+        <div id="result" class="result" style="display: none;"></div>
+        
+        <div class="test-accounts">
+            <h3>🧪 Test Accounts:</h3>
+            <div class="account">admin@school.com / password123</div>
+            <div class="account">teacher@school.com / password123</div>
+            <div class="account">parent@test.com / password123</div>
+            <div class="account">nurse@school.com / password123</div>
+            <div class="account">hub@test.com / password123</div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const resultDiv = document.getElementById('result');
+            
+            try {
+                const response = await fetch('http://localhost:5000/api/auth/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ email, password }),
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    resultDiv.innerHTML = `✅ Login successful! Welcome ${data.name} (${data.role})`;
+                    resultDiv.className = 'result success';
+                    // Redirect to main app after 2 seconds
+                    setTimeout(() => {
+                        window.location.href = 'http://localhost:5176/dashboard';
+                    }, 2000);
+                } else {
+                    // Check for temporary lock with countdown
+                    if (data.lockedUntil) {
+                        const unlockTime = new Date(data.lockedUntil).getTime();
+                        let secondsLeft = Math.ceil((unlockTime - Date.now()) / 1000);
+                        resultDiv.innerHTML = `❌ Account temporarily locked. Auto-unlocking in <span id="countdown">${secondsLeft}</span> second${secondsLeft !== 1 ? 's' : ''}...`;
+                        resultDiv.className = 'result error';
+                        resultDiv.style.display = 'block';
+                        const countdownSpan = () => document.getElementById('countdown');
+                        const interval = setInterval(() => {
+                            secondsLeft--;
+                            if (secondsLeft > 0) {
+                                if (countdownSpan()) countdownSpan().textContent = secondsLeft;
+                            } else {
+                                clearInterval(interval);
+                                resultDiv.innerHTML = '🔓 You can now try logging in again.';
+                                resultDiv.className = 'result success';
+                            }
+                        }, 1000);
+                    } else {
+                        resultDiv.innerHTML = `❌ Login failed: ${data.error || data.message}`;
+                        resultDiv.className = 'result error';
+                    }
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `❌ Network error: ${error.message}`;
+                resultDiv.className = 'result error';
+            }
+            
+            resultDiv.style.display = 'block';
+        });
+    </script>
+</body>
+</html> 

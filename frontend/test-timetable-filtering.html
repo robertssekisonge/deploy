@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Timetable Filtering</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-section { margin: 20px 0; padding: 20px; border: 1px solid #ccc; border-radius: 5px; }
+        .success { background-color: #d4edda; border-color: #c3e6cb; }
+        .error { background-color: #f8d7da; border-color: #f5c6cb; }
+        .info { background-color: #d1ecf1; border-color: #bee5eb; }
+        pre { background-color: #f8f9fa; padding: 10px; border-radius: 3px; overflow-x: auto; }
+    </style>
+</head>
+<body>
+    <h1>Test Timetable Filtering for Teachers</h1>
+    
+    <div class="test-section info">
+        <h2>Test Setup</h2>
+        <p>This test will verify that the timetable filtering logic works correctly for teachers with assigned classes.</p>
+    </div>
+
+    <div class="test-section">
+        <h2>Test 1: Teacher Assignment Structure</h2>
+        <p>Testing the new assignedClasses structure:</p>
+        <pre id="assignment-test"></pre>
+        <button onclick="testAssignmentStructure()">Run Test</button>
+    </div>
+
+    <div class="test-section">
+        <h2>Test 2: Timetable Filtering</h2>
+        <p>Testing that teachers can see timetables for their assigned classes:</p>
+        <pre id="filtering-test"></pre>
+        <button onclick="testTimetableFiltering()">Run Test</button>
+    </div>
+
+    <div class="test-section">
+        <h2>Test 3: Backend API Test</h2>
+        <p>Testing the backend timetable API:</p>
+        <pre id="api-test"></pre>
+        <button onclick="testBackendAPI()">Run Test</button>
+    </div>
+
+    <script>
+        // Test 1: Assignment Structure
+        function testAssignmentStructure() {
+            const testUser = {
+                id: '1',
+                name: 'Teacher Rose',
+                role: 'USER',
+                assignedClasses: JSON.stringify([
+                    {
+                        id: '1',
+                        classId: '1',
+                        streamId: 's1a',
+                        className: 'Senior 1',
+                        streamName: 'A',
+                        subjects: ['Mathematics', 'Physics'],
+                        isMainTeacher: true
+                    }
+                ])
+            };
+
+            const result = {
+                user: testUser,
+                parsedAssignedClasses: JSON.parse(testUser.assignedClasses),
+                hasAssignedClasses: testUser.assignedClasses && testUser.assignedClasses.length > 0
+            };
+
+            document.getElementById('assignment-test').textContent = JSON.stringify(result, null, 2);
+        }
+
+        // Test 2: Timetable Filtering
+        function testTimetableFiltering() {
+            const testUser = {
+                id: '1',
+                name: 'Teacher Rose',
+                role: 'USER',
+                assignedClasses: JSON.stringify([
+                    {
+                        id: '1',
+                        classId: '1',
+                        streamId: 's1a',
+                        className: 'Senior 1',
+                        streamName: 'A',
+                        subjects: ['Mathematics', 'Physics'],
+                        isMainTeacher: true
+                    }
+                ])
+            };
+
+            const testTimetables = [
+                {
+                    id: '1',
+                    classId: '1',
+                    streamId: 's1a',
+                    className: 'Senior 1',
+                    streamName: 'A',
+                    day: 'Monday',
+                    startTime: '08:00',
+                    endTime: '09:00',
+                    subject: 'Mathematics',
+                    teacherId: '1',
+                    teacherName: 'Teacher Rose',
+                    duration: 60,
+                    room: 'Room 101'
+                },
+                {
+                    id: '2',
+                    classId: '2',
+                    streamId: 's1b',
+                    className: 'Senior 1',
+                    streamName: 'B',
+                    day: 'Monday',
+                    startTime: '09:00',
+                    endTime: '10:00',
+                    subject: 'English',
+                    teacherId: '2',
+                    teacherName: 'Teacher John',
+                    duration: 60,
+                    room: 'Room 102'
+                }
+            ];
+
+            // Simulate the filtering logic from TeacherTimetable component
+            let assignedClasses = [];
+            if (testUser.assignedClasses) {
+                try {
+                    assignedClasses = typeof testUser.assignedClasses === 'string' 
+                        ? JSON.parse(testUser.assignedClasses) 
+                        : testUser.assignedClasses;
+                } catch (error) {
+                    console.error('Error parsing assignedClasses:', error);
+                    assignedClasses = [];
+                }
+            }
+
+            const filteredTimetables = testTimetables.filter(entry => {
+                return assignedClasses.some(assignment => {
+                    if (entry.className === assignment.className) {
+                        if (assignment.isMainTeacher) {
+                            return true;
+                        }
+                        return entry.streamName === assignment.streamName;
+                    }
+                    return false;
+                });
+            });
+
+            const result = {
+                totalTimetables: testTimetables.length,
+                assignedClasses: assignedClasses,
+                filteredTimetables: filteredTimetables,
+                filteringLogic: 'Teacher should only see timetables for Senior 1 A (their assigned class)'
+            };
+
+            document.getElementById('filtering-test').textContent = JSON.stringify(result, null, 2);
+        }
+
+        // Test 3: Backend API
+        async function testBackendAPI() {
+            try {
+                const response = await fetch('http://localhost:5000/api/timetables');
+                if (response.ok) {
+                    const data = await response.json();
+                    document.getElementById('api-test').textContent = 
+                        `✅ Backend API working\nStatus: ${response.status}\nTimetables found: ${data.length}\n\nData: ${JSON.stringify(data, null, 2)}`;
+                } else {
+                    document.getElementById('api-test').textContent = 
+                        `❌ Backend API error\nStatus: ${response.status}\nStatusText: ${response.statusText}`;
+                }
+            } catch (error) {
+                document.getElementById('api-test').textContent = 
+                    `❌ Backend API connection failed\nError: ${error.message}`;
+            }
+        }
+
+        // Run initial tests
+        window.onload = function() {
+            testAssignmentStructure();
+            testTimetableFiltering();
+        };
+    </script>
+</body>
+</html>
+
+
+
+
+
+
+
+

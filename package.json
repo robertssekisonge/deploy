@@ -1,0 +1,18 @@
+{
+  "name": "school-management-system",
+  "version": "1.0.0",
+  "description": "School Management System with React frontend and Node.js backend",
+  "scripts": {
+    "build": "cd backend && npm run build",
+    "start": "cd backend && npm start",
+    "dev": "cd backend && npm run dev",
+    "install-all": "npm install && cd backend && npm install && cd ../frontend && npm install"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=8.0.0"
+  },
+  "keywords": ["school", "management", "education", "react", "nodejs"],
+  "author": "SMS Team",
+  "license": "MIT"
+}

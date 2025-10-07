@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Overseer Flow Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .test-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+        .test-section h3 {
+            margin-top: 0;
+            color: #333;
+        }
+        button {
+            background: #4CAF50;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+        button:hover {
+            background: #45a049;
+        }
+        button.danger {
+            background: #f44336;
+        }
+        button.danger:hover {
+            background: #da190b;
+        }
+        button.approve {
+            background: #2196F3;
+        }
+        button.approve:hover {
+            background: #1976D2;
+        }
+        .result {
+            margin-top: 15px;
+            padding: 15px;
+            border-radius: 5px;
+            white-space: pre-wrap;
+            font-family: monospace;
+        }
+        .success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        .warning {
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+        .sponsorship-card {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 10px 0;
+        }
+        .status-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        .status-pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+        .status-approved {
+            background: #d4edda;
+            color: #155724;
+        }
+        .status-rejected {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎯 Overseer Flow Test</h1>
+        <p>This page tests the complete flow: Sponsor submits request → Overseer sees and approves/rejects it</p>
+    </div>
+
+    <div class="grid">
+        <!-- Sponsor Side -->
+        <div class="container">
+            <h2>👤 Sponsor Side</h2>
+            
+            <div class="test-section">
+                <h3>📋 Sponsor's Pending Requests</h3>
+                <button onclick="loadSponsorPending()">📋 Load My Pending Requests</button>
+                <div id="sponsorPendingList"></div>
+            </div>
+
+            <div class="test-section">
+                <h3>🎯 Submit Grace Nakato Sponsorship</h3>
+                <button onclick="submitGraceSponsorship()">🎯 Submit Grace Sponsorship</button>
+                <div id="sponsorSubmitResult"></div>
+            </div>
+        </div>
+
+        <!-- Overseer Side -->
+        <div class="container">
+            <h2>👨‍💼 Overseer Side</h2>
+            
+            <div class="test-section">
+                <h3>📊 All Pending Requests</h3>
+                <button onclick="loadOverseerPending()">📊 Load All Pending Requests</button>
+                <div id="overseerPendingList"></div>
+            </div>
+
+            <div class="test-section">
+                <h3>✅ Approve/Reject Requests</h3>
+                <button onclick="approveGrace()" class="approve">✅ Approve Grace</button>
+                <button onclick="rejectGrace()" class="danger">❌ Reject Grace</button>
+                <div id="overseerActionResult"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <h2>📊 System Status</h2>
+        <div class="test-section">
+            <h3>🔄 Test Complete Flow</h3>
+            <button onclick="testCompleteFlow()">🔄 Run Complete Flow Test</button>
+            <div id="completeFlowResult"></div>
+        </div>
+    </div>
+
+    <script>
+        function showResult(elementId, message, type = 'info') {
+            const resultDiv = document.getElementById(elementId);
+            resultDiv.className = `result ${type}`;
+            resultDiv.textContent = message;
+        }
+
+        function loadSponsorPending() {
+            try {
+                const savedSponsorships = localStorage.getItem('sponsorships');
+                const sponsorships = savedSponsorships ? JSON.parse(savedSponsorships) : [];
+                const sponsorId = 'test-sponsor-123';
+                const pendingSponsorships = sponsorships.filter(s => 
+                    s.sponsorId === sponsorId && s.status === 'pending'
+                );
+                
+                const listDiv = document.getElementById('sponsorPendingList');
+                if (pendingSponsorships.length === 0) {
+                    listDiv.innerHTML = '<p class="info">No pending requests found for this sponsor</p>';
+                    return;
+                }
+                
+                let html = '<h4>My Pending Requests:</h4>';
+                pendingSponsorships.forEach(sponsorship => {
+                    const statusClass = sponsorship.status === 'pending' ? 'status-pending' : 'status-pending';
+                    html += `
+                        <div class="sponsorship-card">
+                            <h4>${sponsorship.studentName}</h4>
+                            <p><strong>Amount:</strong> UGX ${sponsorship.amount?.toLocaleString()}</p>
+                            <p><strong>Status:</strong> <span class="status-badge ${statusClass}">${sponsorship.status}</span></p>
+                            <p><strong>Created:</strong> ${new Date(sponsorship.createdAt).toLocaleString()}</p>
+                        </div>
+                    `;
+                });
+                listDiv.innerHTML = html;
+                
+                showResult('sponsorSubmitResult', `📋 Loaded ${pendingSponsorships.length} pending requests for sponsor`, 'success');
+            } catch (error) {
+                showResult('sponsorSubmitResult', `❌ Error loading sponsor pending: ${error.message}`, 'error');
+            }
+        }
+
+        function submitGraceSponsorship() {
+            try {
+                const sponsorshipData = {
+                    studentId: '1',
+                    studentName: 'Nakato Grace',
+                    sponsorName: 'Test Sponsor',
+                    sponsorEmail: 'test@example.com',
+                    sponsorPhone: '+256700000000',
+                    sponsorCountry: 'Uganda',
+                    sponsorCity: 'Kampala',
+                    sponsorRelationship: 'Individual',
+                    amount: 500000,
+                    duration: 12,
+                    sponsorshipStartDate: new Date().toISOString().split('T')[0],
+                    message: 'I would like to sponsor Grace Nakato for her education. She dreams of becoming a doctor.',
+                    paymentMethod: 'Bank Transfer',
+                    preferredContactMethod: 'Email',
+                    sponsorId: 'test-sponsor-123'
+                };
+
+                const newSponsorship = {
+                    id: 'sponsorship-' + Date.now(),
+                    ...sponsorshipData,
+                    status: 'pending',
+                    createdAt: new Date().toISOString(),
+                    updatedAt: new Date().toISOString()
+                };
+
+                // Save to localStorage
+                const existingSponsorships = JSON.parse(localStorage.getItem('sponsorships') || '[]');
+                existingSponsorships.push(newSponsorship);
+                localStorage.setItem('sponsorships', JSON.stringify(existingSponsorships));
+
+                showResult('sponsorSubmitResult', `✅ Grace Nakato sponsorship submitted successfully!\n\nSponsorship ID: ${newSponsorship.id}\nStatus: pending\n\nThe overseer should now see this request.`, 'success');
+                
+                // Reload the lists
+                setTimeout(() => {
+                    loadSponsorPending();
+                    loadOverseerPending();
+                }, 1000);
+            } catch (error) {
+                showResult('sponsorSubmitResult', `❌ Error submitting sponsorship: ${error.message}`, 'error');
+            }
+        }
+
+        function loadOverseerPending() {
+            try {
+                const savedSponsorships = localStorage.getItem('sponsorships');
+                const sponsorships = savedSponsorships ? JSON.parse(savedSponsorships) : [];
+                const pendingSponsorships = sponsorships.filter(s => s.status === 'pending');
+                
+                const listDiv = document.getElementById('overseerPendingList');
+                if (pendingSponsorships.length === 0) {
+                    listDiv.innerHTML = '<p class="info">No pending requests found for overseer</p>';
+                    return;
+                }
+                
+                let html = '<h4>All Pending Requests:</h4>';
+                pendingSponsorships.forEach(sponsorship => {
+                    const statusClass = sponsorship.status === 'pending' ? 'status-pending' : 'status-pending';
+                    html += `
+                        <div class="sponsorship-card">
+                            <h4>${sponsorship.studentName}</h4>
+                            <p><strong>Sponsor:</strong> ${sponsorship.sponsorName}</p>
+                            <p><strong>Amount:</strong> UGX ${sponsorship.amount?.toLocaleString()}</p>
+                            <p><strong>Status:</strong> <span class="status-badge ${statusClass}">${sponsorship.status}</span></p>
+                            <p><strong>Created:</strong> ${new Date(sponsorship.createdAt).toLocaleString()}</p>
+                            <p><strong>ID:</strong> ${sponsorship.id}</p>
+                        </div>
+                    `;
+                });
+                listDiv.innerHTML = html;
+                
+                showResult('overseerActionResult', `📊 Overseer: Loaded ${pendingSponsorships.length} pending requests`, 'success');
+            } catch (error) {
+                showResult('overseerActionResult', `❌ Error loading overseer pending: ${error.message}`, 'error');
+            }
+        }
+
+        function approveGrace() {
+            try {
+                const savedSponsorships = JSON.parse(localStorage.getItem('sponsorships') || '[]');
+                const graceSponsorship = savedSponsorships.find(s => s.studentName === 'Nakato Grace' && s.status === 'pending');
+                
+                if (!graceSponsorship) {
+                    showResult('overseerActionResult', '❌ No pending Grace Nakato sponsorship found to approve', 'error');
+                    return;
+                }
+
+                // Update status to sponsored
+                const updatedSponsorships = savedSponsorships.map(s => 
+                    s.id === graceSponsorship.id 
+                        ? { ...s, status: 'sponsored', updatedAt: new Date().toISOString() }
+                        : s
+                );
+                
+                localStorage.setItem('sponsorships', JSON.stringify(updatedSponsorships));
+                
+                showResult('overseerActionResult', `✅ Grace Nakato sponsorship APPROVED!\n\nSponsorship ID: ${graceSponsorship.id}\nStatus: sponsored\n\nGrace is now officially sponsored.`, 'success');
+                
+                // Reload the lists
+                setTimeout(() => {
+                    loadSponsorPending();
+                    loadOverseerPending();
+                }, 1000);
+            } catch (error) {
+                showResult('overseerActionResult', `❌ Error approving sponsorship: ${error.message}`, 'error');
+            }
+        }
+
+        function rejectGrace() {
+            try {
+                const savedSponsorships = JSON.parse(localStorage.getItem('sponsorships') || '[]');
+                const graceSponsorship = savedSponsorships.find(s => s.studentName === 'Nakato Grace' && s.status === 'pending');
+                
+                if (!graceSponsorship) {
+                    showResult('overseerActionResult', '❌ No pending Grace Nakato sponsorship found to reject', 'error');
+                    return;
+                }
+
+                // Update status to rejected
+                const updatedSponsorships = savedSponsorships.map(s => 
+                    s.id === graceSponsorship.id 
+                        ? { ...s, status: 'rejected', updatedAt: new Date().toISOString() }
+                        : s
+                );
+                
+                localStorage.setItem('sponsorships', JSON.stringify(updatedSponsorships));
+                
+                showResult('overseerActionResult', `❌ Grace Nakato sponsorship REJECTED!\n\nSponsorship ID: ${graceSponsorship.id}\nStatus: rejected\n\nGrace is now available for sponsorship again.`, 'success');
+                
+                // Reload the lists
+                setTimeout(() => {
+                    loadSponsorPending();
+                    loadOverseerPending();
+                }, 1000);
+            } catch (error) {
+                showResult('overseerActionResult', `❌ Error rejecting sponsorship: ${error.message}`, 'error');
+            }
+        }
+
+        function testCompleteFlow() {
+            try {
+                // Clear existing data
+                localStorage.removeItem('sponsorships');
+                
+                // Step 1: Submit sponsorship
+                submitGraceSponsorship();
+                
+                // Step 2: Check overseer sees it
+                setTimeout(() => {
+                    loadOverseerPending();
+                    
+                    // Step 3: Approve it
+                    setTimeout(() => {
+                        approveGrace();
+                        
+                        // Step 4: Final check
+                        setTimeout(() => {
+                            const savedSponsorships = JSON.parse(localStorage.getItem('sponsorships') || '[]');
+                            const graceSponsorship = savedSponsorships.find(s => s.studentName === 'Nakato Grace');
+                            
+                            if (graceSponsorship && graceSponsorship.status === 'sponsored') {
+                                showResult('completeFlowResult', `🎉 COMPLETE FLOW TEST SUCCESSFUL!\n\n✅ Sponsor submitted request\n✅ Overseer saw request\n✅ Overseer approved request\n✅ Status updated to 'sponsored'\n\nGrace Nakato is now officially sponsored!`, 'success');
+                            } else {
+                                showResult('completeFlowResult', `❌ Flow test failed - Grace not found or not approved`, 'error');
+                            }
+                        }, 1000);
+                    }, 1000);
+                }, 1000);
+                
+            } catch (error) {
+                showResult('completeFlowResult', `❌ Error in complete flow test: ${error.message}`, 'error');
+            }
+        }
+
+        // Auto-load on page load
+        window.onload = function() {
+            showResult('completeFlowResult', '🚀 Overseer Flow Test Page Loaded\n\nThis page tests the complete flow:\n1. Sponsor submits Grace Nakato sponsorship\n2. Overseer sees the pending request\n3. Overseer approves/rejects the request\n\nClick "Run Complete Flow Test" to test everything automatically.', 'info');
+            loadSponsorPending();
+            loadOverseerPending();
+        };
+    </script>
+</body>
+</html>

@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Account Switcher</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .container {
+            background: white;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            max-width: 500px;
+            width: 100%;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+        }
+        .account-card {
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 10px 0;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .account-card:hover {
+            border-color: #667eea;
+            background: #f0f4ff;
+            transform: translateY(-2px);
+        }
+        .account-name {
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 5px;
+        }
+        .account-details {
+            color: #666;
+            font-size: 14px;
+        }
+        .role-badge {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            margin-left: 10px;
+        }
+        .clear-all {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 20px;
+            font-size: 16px;
+        }
+        .clear-all:hover {
+            background: #c82333;
+        }
+        .status {
+            margin-top: 20px;
+            padding: 10px;
+            border-radius: 5px;
+            text-align: center;
+            display: none;
+        }
+        .success {
+            background: #d4edda;
+            color: #155724;
+        }
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔐 Account Switcher</h1>
+        
+        <div class="account-card" onclick="loginAs('admin@school.com', 'password123', 'Admin')">
+            <div class="account-name">
+                👑 Administrator
+                <span class="role-badge">ADMIN</span>
+            </div>
+            <div class="account-details">admin@school.com</div>
+        </div>
+        
+        <div class="account-card" onclick="loginAs('teacher@school.com', 'password123', 'Teacher')">
+            <div class="account-name">
+                👨‍🏫 Teacher
+                <span class="role-badge">TEACHER</span>
+            </div>
+            <div class="account-details">teacher@school.com</div>
+        </div>
+        
+        <div class="account-card" onclick="loginAs('parent@test.com', 'password123', 'Parent')">
+            <div class="account-name">
+                👨‍👩‍👧‍👦 Parent
+                <span class="role-badge">PARENT</span>
+            </div>
+            <div class="account-details">parent@test.com</div>
+        </div>
+        
+        <div class="account-card" onclick="loginAs('nurse@school.com', 'password123', 'Nurse')">
+            <div class="account-name">
+                🏥 Nurse
+                <span class="role-badge">NURSE</span>
+            </div>
+            <div class="account-details">nurse@school.com</div>
+        </div>
+        
+        <div class="account-card" onclick="loginAs('hub@test.com', 'password123', 'Admin')">
+            <div class="account-name">
+                🔧 Hub Admin
+                <span class="role-badge">ADMIN</span>
+            </div>
+            <div class="account-details">hub@test.com</div>
+        </div>
+        
+        <button class="clear-all" onclick="clearAllAndGoToLogin()">
+            🗑️ Clear All & Go to Login
+        </button>
+        
+        <div id="status" class="status"></div>
+    </div>
+
+    <script>
+        async function loginAs(email, password, role) {
+            const statusDiv = document.getElementById('status');
+            statusDiv.innerHTML = `🔄 Logging in as ${role}...`;
+            statusDiv.className = 'status';
+            statusDiv.style.display = 'block';
+            
+            try {
+                // First clear any existing session
+                localStorage.clear();
+                sessionStorage.clear();
+                
+                // Login to the backend
+                const response = await fetch('http://localhost:5000/api/auth/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ email, password }),
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    // Store user data
+                    localStorage.setItem('user', JSON.stringify(data));
+                    
+                    statusDiv.innerHTML = `✅ Successfully logged in as ${data.name}! Redirecting...`;
+                    statusDiv.className = 'status success';
+                    
+                    // Redirect to main app
+                    setTimeout(() => {
+                        window.location.href = 'http://localhost:5176/dashboard';
+                    }, 1500);
+                } else {
+                    statusDiv.innerHTML = `❌ Login failed: ${data.error || data.message}`;
+                    statusDiv.className = 'status error';
+                }
+            } catch (error) {
+                statusDiv.innerHTML = `❌ Network error: ${error.message}`;
+                statusDiv.className = 'status error';
+            }
+        }
+        
+        function clearAllAndGoToLogin() {
+            // Clear everything
+            localStorage.clear();
+            sessionStorage.clear();
+            
+            // Redirect to login page
+            window.location.href = 'http://localhost:5176/login';
+        }
+    </script>
+</body>
+</html> 

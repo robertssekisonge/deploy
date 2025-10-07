@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Teacher Rose Resource Access</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-section { margin: 20px 0; padding: 20px; border: 1px solid #ccc; border-radius: 5px; }
+        .success { background-color: #d4edda; border-color: #c3e6cb; }
+        .error { background-color: #f8d7da; border-color: #f5c6cb; }
+        .info { background-color: #d1ecf1; border-color: #bee5eb; }
+        pre { background-color: #f8f9fa; padding: 10px; border-radius: 3px; overflow-x: auto; }
+    </style>
+</head>
+<body>
+    <h1>Test Teacher Rose Resource Access Fix</h1>
+    
+    <div class="test-section success">
+        <h2>✅ Issue Identified and Fixed</h2>
+        <p><strong>Problem:</strong> Teacher Rose couldn't see Senior 1 resources because the role filtering logic in ClassResources.tsx only included 'USER' and 'SUPER_TEACHER' roles, but Teacher Rose has the role 'TEACHER'.</p>
+        
+        <p><strong>Solution:</strong> Updated the role filtering logic to include 'TEACHER' role in three places:</p>
+        <ul>
+            <li>Line 34: hasAssignedClasses() function</li>
+            <li>Line 59: Access restriction check</li>
+            <li>Line 89: allowedClassIds determination</li>
+            <li>Line 372: Teacher notice section</li>
+        </ul>
+    </div>
+
+    <div class="test-section info">
+        <h2>📊 Teacher Rose's Current Data</h2>
+        <pre id="teacher-data"></pre>
+    </div>
+
+    <div class="test-section info">
+        <h2>📚 Available Resources</h2>
+        <pre id="resources-data"></pre>
+    </div>
+
+    <div class="test-section">
+        <h2>🧪 Test Resource Filtering Logic</h2>
+        <p>Simulate the fixed filtering logic:</p>
+        <pre id="filtering-test"></pre>
+        <button onclick="testFilteringLogic()">Test Filtering</button>
+    </div>
+
+    <script>
+        // Teacher Rose's data from database
+        const teacherRose = {
+            id: '1',
+            name: 'rose',
+            email: 'rose@school.com',
+            role: 'TEACHER',
+            assignedClasses: [{
+                "id": "1757686959362",
+                "classId": "1",
+                "streamId": "s1a",
+                "className": "Senior 1",
+                "streamName": "A",
+                "subjects": ["Mathematics", "English", "Physics", "Chemistry", "Biology"],
+                "isMainTeacher": false
+            }]
+        };
+
+        // Available resources
+        const resources = [
+            {
+                id: '1',
+                title: 'cisco',
+                classIds: ['1'],
+                uploadedBy: 'Admin',
+                uploadedAt: new Date().toISOString()
+            }
+        ];
+
+        // Classes
+        const classes = [
+            { id: '1', name: 'Senior 1' }
+        ];
+
+        function displayData() {
+            document.getElementById('teacher-data').textContent = JSON.stringify(teacherRose, null, 2);
+            document.getElementById('resources-data').textContent = JSON.stringify(resources, null, 2);
+        }
+
+        function testFilteringLogic() {
+            // Simulate the fixed logic
+            const user = teacherRose;
+            
+            // Check if teacher has assigned classes (fixed logic)
+            const hasAssignedClasses = () => {
+                if (user?.role?.toLowerCase() !== 'user' && 
+                    user?.role?.toLowerCase() !== 'teacher' && 
+                    user?.role?.toLowerCase() !== 'super-teacher') {
+                    return true; // Admin and other roles can see everything
+                }
+
+                // Check for new assignedClasses structure
+                if (user.assignedClasses) {
+                    try {
+                        const assignedClasses = typeof user.assignedClasses === 'string' 
+                            ? JSON.parse(user.assignedClasses) 
+                            : user.assignedClasses;
+                        return assignedClasses && assignedClasses.length > 0;
+                    } catch (error) {
+                        console.error('Error parsing assignedClasses:', error);
+                    }
+                }
+
+                return false;
+            };
+
+            // Determine allowed classes for upload/view (fixed logic)
+            let allowedClassIds = [];
+            if (user?.role?.toLowerCase() === 'admin' || user?.role?.toLowerCase() === 'superuser') {
+                allowedClassIds = classes.map(cls => cls.id);
+            } else if (user?.role === 'USER' || user?.role === 'TEACHER' || user?.role === 'SUPER_TEACHER') {
+                // Parse assignedClasses from the new structure
+                let assignedClasses = [];
+                if (user.assignedClasses) {
+                    try {
+                        assignedClasses = typeof user.assignedClasses === 'string' 
+                            ? JSON.parse(user.assignedClasses) 
+                            : user.assignedClasses;
+                    } catch (error) {
+                        console.error('Error parsing assignedClasses:', error);
+                        assignedClasses = [];
+                    }
+                }
+                
+                allowedClassIds = assignedClasses.map((assignment) => assignment.classId).filter(Boolean);
+            }
+
+            // Filter resources
+            const filteredResources = resources.filter(r => {
+                // For teachers, only show resources for their assigned classes
+                const hasAccess = allowedClassIds.some(cid => r.classIds.includes(cid));
+                return hasAccess;
+            });
+
+            const result = {
+                userRole: user.role,
+                hasAssignedClasses: hasAssignedClasses(),
+                allowedClassIds: allowedClassIds,
+                totalResources: resources.length,
+                filteredResources: filteredResources.length,
+                canSeeResources: filteredResources.length > 0,
+                resources: filteredResources
+            };
+
+            document.getElementById('filtering-test').textContent = JSON.stringify(result, null, 2);
+        }
+
+        // Initialize
+        window.onload = function() {
+            displayData();
+            testFilteringLogic();
+        };
+    </script>
+</body>
+</html>
+
+
+
+
+
+
+

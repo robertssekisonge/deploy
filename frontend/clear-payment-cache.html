@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Clear Payment Cache</title>
+</head>
+<body>
+    <h1>Clearing Payment Summary Cache</h1>
+    <div id="status">Clearing cache...</div>
+    
+    <script>
+        try {
+            // Clear payment summary cache
+            const keysToRemove = [];
+            for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                if (key && key.startsWith('paymentSummary_')) {
+                    keysToRemove.push(key);
+                }
+            }
+            
+            keysToRemove.forEach(key => {
+                localStorage.removeItem(key);
+                console.log('🗑️ Removed payment cache key:', key);
+            });
+            
+            // Also clear any other relevant caches
+            const otherCacheKeys = ['feeStructCache', 'paymentCache', 'studentCache'];
+            otherCacheKeys.forEach(key => {
+                if (localStorage.getItem(key)) {
+                    localStorage.removeItem(key);
+                    console.log('🗑️ Removed cache key:', key);
+                }
+            });
+            
+            // Clear window cache
+            if (typeof window !== 'undefined') {
+                delete window.__feeStructCache;
+                console.log('🗑️ Cleared window.__feeStructCache');
+            }
+            
+            document.getElementById('status').innerHTML = `
+                <h2>✅ Payment Cache Cleared Successfully!</h2>
+                <p>Cleared ${keysToRemove.length} payment summary cache entries</p>
+                <p>Please refresh the parent dashboard to see the updated fee data.</p>
+                <button onclick="window.close()">Close</button>
+            `;
+            
+        } catch (error) {
+            document.getElementById('status').innerHTML = `
+                <h2>❌ Error clearing cache</h2>
+                <p>${error.message}</p>
+            `;
+        }
+    </script>
+</body>
+</html>
+
+
+

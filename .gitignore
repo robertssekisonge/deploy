@@ -1,0 +1,94 @@
+# ------------------------------------------------------------
+# General dependencies and logs
+# ------------------------------------------------------------
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+*.log
+logs/
+.eslintcache
+
+# ------------------------------------------------------------
+# Build outputs / caches (frontend & backend)
+# ------------------------------------------------------------
+dist/
+build/
+.next/
+.nuxt/
+.output/
+.parcel-cache/
+.cache/
+coverage/
+tmp/
+temp/
+.temp/
+
+# Vite / Webpack / CRA
+.vite/
+.turbo/
+
+# ------------------------------------------------------------
+# Environment files (keep example)
+# ------------------------------------------------------------
+.env
+.env.*
+!.env.example
+
+# ------------------------------------------------------------
+# IDE/editor files
+# ------------------------------------------------------------
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# ------------------------------------------------------------
+# OS junk
+# ------------------------------------------------------------
+.DS_Store
+Thumbs.db
+ehthumbs.db
+desktop.ini
+$RECYCLE.BIN/
+
+# ------------------------------------------------------------
+# Databases / dumps / backups
+# ------------------------------------------------------------
+*.sqlite
+*.sqlite3
+*.db
+*.db-journal
+*.bak
+*.sql
+dump.sql
+
+# ------------------------------------------------------------
+# Archives / binaries (common large files)
+# ------------------------------------------------------------
+*.zip
+*.7z
+*.tar
+*.gz
+*.tgz
+*.bz2
+*.rar
+*.msi
+
+# ------------------------------------------------------------
+# Framework / tool specifics
+# ------------------------------------------------------------
+.firebase/
+.vercel/
+.netlify/
+.serverless/
+
+# ------------------------------------------------------------
+# Project-specific large artifacts present in repo root
+# ------------------------------------------------------------
+nodejs-portable.zip
+nodejs-installer.msi
+install.log
+
+/node_modules

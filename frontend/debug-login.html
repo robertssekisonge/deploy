@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug Login - School Management System</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .container {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 30px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+        button {
+            background: #4CAF50;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px 5px;
+        }
+        button:hover { background: #45a049; }
+        .status {
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 8px;
+            font-weight: bold;
+        }
+        .success { background: rgba(76, 175, 80, 0.8); }
+        .error { background: rgba(244, 67, 54, 0.8); }
+        .info { background: rgba(33, 150, 243, 0.8); }
+        .log {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            font-family: monospace;
+            font-size: 12px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 Debug Login Test</h1>
+        <p>This page will help us identify the network connection issue.</p>
+        
+        <div class="status info">
+            <h3>📋 Test Credentials</h3>
+            <p><strong>Email:</strong> admin@school.com</p>
+            <p><strong>Password:</strong> admin123</p>
+        </div>
+
+        <form id="loginForm">
+            <div class="form-group">
+                <label for="email">Email:</label>
+                <input type="email" id="email" value="admin@school.com" required>
+            </div>
+            <div class="form-group">
+                <label for="password">Password:</label>
+                <input type="password" id="password" value="admin123" required>
+            </div>
+            <button type="submit">Test Login</button>
+            <button type="button" onclick="testBackend()">Test Backend Connection</button>
+            <button type="button" onclick="testDatabase()">Test Database Connection</button>
+        </form>
+
+        <div id="status" class="status info">
+            <h3>🔍 Test Results</h3>
+            <p id="backend-status">⏳ Testing backend connection...</p>
+            <p id="db-status">⏳ Testing database connection...</p>
+            <p id="login-status">⏳ Ready to test login...</p>
+        </div>
+
+        <div class="log">
+            <h3>📝 Debug Log</h3>
+            <div id="log"></div>
+        </div>
+    </div>
+
+    <script>
+        function log(message) {
+            const logDiv = document.getElementById('log');
+            const timestamp = new Date().toLocaleTimeString();
+            logDiv.innerHTML += `[${timestamp}] ${message}\n`;
+            logDiv.scrollTop = logDiv.scrollHeight;
+        }
+
+        async function testBackend() {
+            log('Testing backend connection...');
+            try {
+                const response = await fetch('http://localhost:5000/api/health', {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    log(`✅ Backend connected: ${JSON.stringify(data)}`);
+                    document.getElementById('backend-status').innerHTML = '✅ Backend: Connected';
+                } else {
+                    log(`❌ Backend error: ${response.status} ${response.statusText}`);
+                    document.getElementById('backend-status').innerHTML = `❌ Backend: Error ${response.status}`;
+                }
+            } catch (error) {
+                log(`❌ Backend connection failed: ${error.message}`);
+                document.getElementById('backend-status').innerHTML = '❌ Backend: Connection Failed';
+            }
+        }
+
+        async function testDatabase() {
+            log('Testing database connection...');
+            try {
+                const response = await fetch('http://localhost:5000/api/test-db', {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    log(`✅ Database connected: ${JSON.stringify(data)}`);
+                    document.getElementById('db-status').innerHTML = '✅ Database: Connected';
+                } else {
+                    log(`❌ Database error: ${response.status} ${response.statusText}`);
+                    document.getElementById('db-status').innerHTML = `❌ Database: Error ${response.status}`;
+                }
+            } catch (error) {
+                log(`❌ Database connection failed: ${error.message}`);
+                document.getElementById('db-status').innerHTML = '❌ Database: Connection Failed';
+            }
+        }
+
+        async function testLogin(email, password) {
+            log(`Testing login with: ${email}`);
+            try {
+                const response = await fetch('http://localhost:5000/api/auth/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ email, password })
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    log(`✅ Login successful: ${JSON.stringify(data)}`);
+                    document.getElementById('login-status').innerHTML = '✅ Login: Successful';
+                } else {
+                    const errorData = await response.json();
+                    log(`❌ Login failed: ${JSON.stringify(errorData)}`);
+                    document.getElementById('login-status').innerHTML = '❌ Login: Failed';
+                }
+            } catch (error) {
+                log(`❌ Login connection failed: ${error.message}`);
+                document.getElementById('login-status').innerHTML = '❌ Login: Connection Failed';
+            }
+        }
+
+        // Form submission
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            await testLogin(email, password);
+        });
+
+        // Auto-run tests on page load
+        window.onload = function() {
+            log('Page loaded, starting tests...');
+            setTimeout(testBackend, 1000);
+            setTimeout(testDatabase, 2000);
+        };
+    </script>
+</body>
+</html> 

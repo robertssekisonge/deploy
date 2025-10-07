@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Clinic Records Saving</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 20px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            background: #f9f9f9;
+        }
+        .test-section h3 {
+            color: #555;
+            margin-top: 0;
+        }
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px 5px;
+            transition: transform 0.2s;
+        }
+        button:hover {
+            transform: translateY(-2px);
+        }
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .result {
+            margin: 10px 0;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: monospace;
+            white-space: pre-wrap;
+        }
+        .success {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+        .error {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+        .info {
+            background: #d1ecf1;
+            border: 1px solid #bee5eb;
+            color: #0c5460;
+        }
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🏥 Clinic Records Saving Test</h1>
+        
+        <div class="test-section">
+            <h3>1. Test Backend Connectivity</h3>
+            <button onclick="testBackendConnectivity()">Test Backend Connection</button>
+            <div id="connectivity-result"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>2. Test Clinic Records API</h3>
+            <button onclick="testClinicRecordsAPI()">Test GET /api/clinic</button>
+            <div id="api-result"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>3. Test Create Clinic Record</h3>
+            <button onclick="testCreateClinicRecord()">Test POST /api/clinic</button>
+            <div id="create-result"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>4. Test Frontend Integration</h3>
+            <button onclick="testFrontendIntegration()">Test Frontend DataContext</button>
+            <div id="frontend-result"></div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE_URL = 'http://localhost:5000/api';
+
+        function showResult(elementId, message, type = 'info') {
+            const element = document.getElementById(elementId);
+            element.innerHTML = `<div class="result ${type}">${message}</div>`;
+        }
+
+        function showLoading(elementId) {
+            const element = document.getElementById(elementId);
+            element.innerHTML = '<div class="result info"><div class="loading"></div> Testing...</div>';
+        }
+
+        async function testBackendConnectivity() {
+            showLoading('connectivity-result');
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}/clinic`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                });
+                
+                if (response.ok) {
+                    showResult('connectivity-result', 
+                        `✅ Backend is running and accessible!\n` +
+                        `Status: ${response.status} ${response.statusText}\n` +
+                        `URL: ${API_BASE_URL}/clinic`, 'success');
+                } else {
+                    showResult('connectivity-result', 
+                        `❌ Backend responded with error\n` +
+                        `Status: ${response.status} ${response.statusText}`, 'error');
+                }
+            } catch (error) {
+                showResult('connectivity-result', 
+                    `❌ Failed to connect to backend\n` +
+                    `Error: ${error.message}\n` +
+                    `Make sure the backend server is running on port 5000`, 'error');
+            }
+        }
+
+        async function testClinicRecordsAPI() {
+            showLoading('api-result');
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}/clinic`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    showResult('api-result', 
+                        `✅ Successfully fetched clinic records!\n` +
+                        `Status: ${response.status}\n` +
+                        `Records count: ${data.length}\n` +
+                        `Sample data: ${JSON.stringify(data.slice(0, 2), null, 2)}`, 'success');
+                } else {
+                    const errorText = await response.text();
+                    showResult('api-result', 
+                        `❌ Failed to fetch clinic records\n` +
+                        `Status: ${response.status}\n` +
+                        `Error: ${errorText}`, 'error');
+                }
+            } catch (error) {
+                showResult('api-result', 
+                    `❌ Error fetching clinic records\n` +
+                    `Error: ${error.message}`, 'error');
+            }
+        }
+
+        async function testCreateClinicRecord() {
+            showLoading('create-result');
+            
+            const testRecord = {
+                studentId: 'test-student-123',
+                accessNumber: 'TEST001',
+                studentName: 'Test Student',
+                className: 'P.1',
+                streamName: 'A',
+                visitDate: new Date().toISOString(),
+                visitTime: new Date().toLocaleTimeString(),
+                symptoms: 'Test symptoms - headache and fever',
+                diagnosis: 'Test diagnosis - common cold',
+                treatment: 'Test treatment - rest and fluids',
+                medication: 'Test medication - paracetamol',
+                cost: 5000,
+                nurseId: 'test-nurse-123',
+                nurseName: 'Test Nurse',
+                followUpRequired: false,
+                followUpDate: null,
+                parentNotified: false,
+                status: 'resolved',
+                notes: 'Test clinic record created by automated test'
+            };
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/clinic`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(testRecord)
+                });
+                
+                if (response.ok) {
+                    const createdRecord = await response.json();
+                    showResult('create-result', 
+                        `✅ Successfully created clinic record!\n` +
+                        `Status: ${response.status}\n` +
+                        `Created record ID: ${createdRecord.id}\n` +
+                        `Record data: ${JSON.stringify(createdRecord, null, 2)}`, 'success');
+                } else {
+                    const errorText = await response.text();
+                    showResult('create-result', 
+                        `❌ Failed to create clinic record\n` +
+                        `Status: ${response.status}\n` +
+                        `Error: ${errorText}`, 'error');
+                }
+            } catch (error) {
+                showResult('create-result', 
+                    `❌ Error creating clinic record\n` +
+                    `Error: ${error.message}`, 'error');
+            }
+        }
+
+        async function testFrontendIntegration() {
+            showLoading('frontend-result');
+            
+            try {
+                // Test if we can access the frontend
+                const frontendResponse = await fetch('http://localhost:5173', {
+                    method: 'GET'
+                });
+                
+                if (frontendResponse.ok) {
+                    showResult('frontend-result', 
+                        `✅ Frontend is accessible!\n` +
+                        `Status: ${frontendResponse.status}\n` +
+                        `URL: http://localhost:5173\n\n` +
+                        `📝 Next steps:\n` +
+                        `1. Open the frontend application\n` +
+                        `2. Navigate to Clinic Management\n` +
+                        `3. Try adding a new clinic record\n` +
+                        `4. Check if the record appears in the list\n` +
+                        `5. Verify the record is saved to the database`, 'success');
+                } else {
+                    showResult('frontend-result', 
+                        `⚠️ Frontend may not be running\n` +
+                        `Status: ${frontendResponse.status}\n` +
+                        `Make sure to start the frontend with: npm run dev`, 'error');
+                }
+            } catch (error) {
+                showResult('frontend-result', 
+                    `⚠️ Frontend not accessible\n` +
+                    `Error: ${error.message}\n` +
+                    `Make sure the frontend is running on port 5173`, 'error');
+            }
+        }
+
+        // Auto-run connectivity test on page load
+        window.addEventListener('load', () => {
+            setTimeout(testBackendConnectivity, 1000);
+        });
+    </script>
+</body>
+</html>

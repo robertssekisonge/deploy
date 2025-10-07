@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quick Logout & Account Switch</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .container {
+            background: white;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            max-width: 600px;
+            width: 100%;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+        }
+        .button-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        .logout-btn {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 15px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+        .logout-btn:hover {
+            background: #c82333;
+            transform: translateY(-2px);
+        }
+        .account-btn {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 15px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+        .account-btn:hover {
+            background: #0056b3;
+            transform: translateY(-2px);
+        }
+        .admin-btn {
+            background: #6f42c1;
+        }
+        .admin-btn:hover {
+            background: #5a2d91;
+        }
+        .teacher-btn {
+            background: #28a745;
+        }
+        .teacher-btn:hover {
+            background: #1e7e34;
+        }
+        .parent-btn {
+            background: #fd7e14;
+        }
+        .parent-btn:hover {
+            background: #e55a00;
+        }
+        .nurse-btn {
+            background: #e83e8c;
+        }
+        .nurse-btn:hover {
+            background: #c7254e;
+        }
+        .status {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            display: none;
+        }
+        .success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 Quick Logout & Account Switch</h1>
+        
+        <div class="button-grid">
+            <button class="logout-btn" onclick="forceLogout()">
+                🗑️ Force Logout (Clear Everything)
+            </button>
+            
+            <button class="account-btn admin-btn" onclick="switchToAccount('admin@school.com', 'hub h123', 'Admin')">
+                👑 Switch to Admin
+            </button>
+            
+            <button class="account-btn teacher-btn" onclick="switchToAccount('jane.smith@school.com', 'password123', 'Super Teacher')">
+                👨‍🏫 Switch to Super Teacher
+            </button>
+            
+            <button class="account-btn parent-btn" onclick="switchToAccount('parent@test.com', 'hub h123', 'Parent')">
+                👨‍👩‍👧‍👦 Switch to Parent
+            </button>
+            
+            <button class="account-btn parent-btn" onclick="switchToAccount('rose@school.com', 'password', 'Parent Rose')">
+                🌹 Switch to Parent Rose
+            </button>
+            
+            <button class="account-btn admin-btn" onclick="switchToAccount('hub@test.com', 'hub h123', 'Hub Admin')">
+                🔧 Switch to Hub Admin
+            </button>
+        </div>
+        
+        <div id="status" class="status"></div>
+    </div>
+
+    <script>
+        function showStatus(message, type) {
+            const statusDiv = document.getElementById('status');
+            statusDiv.innerHTML = message;
+            statusDiv.className = `status ${type}`;
+            statusDiv.style.display = 'block';
+        }
+
+        function forceLogout() {
+            showStatus('🗑️ Clearing all data and logging out...', 'info');
+            
+            // Clear everything
+            localStorage.clear();
+            sessionStorage.clear();
+            
+            // Clear any cookies
+            document.cookie.split(";").forEach(function(c) { 
+                document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/"); 
+            });
+            
+            setTimeout(() => {
+                showStatus('✅ Logged out successfully! Redirecting to login...', 'success');
+                setTimeout(() => {
+                    window.location.href = 'http://localhost:5176/login';
+                }, 1500);
+            }, 1000);
+        }
+
+        async function switchToAccount(email, password, role) {
+            showStatus(`🔄 Switching to ${role} account...`, 'info');
+            
+            try {
+                // First clear any existing session
+                localStorage.clear();
+                sessionStorage.clear();
+                
+                // Login to the backend
+                const response = await fetch('http://localhost:5000/api/auth/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ email, password }),
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    // Store user data
+                    localStorage.setItem('user', JSON.stringify(data));
+                    
+                    showStatus(`✅ Successfully switched to ${data.name} (${data.role})! Redirecting...`, 'success');
+                    
+                    // Redirect to main app
+                    setTimeout(() => {
+                        window.location.href = 'http://localhost:5176/dashboard';
+                    }, 1500);
+                } else {
+                    showStatus(`❌ Login failed: ${data.error || data.message}`, 'error');
+                }
+            } catch (error) {
+                showStatus(`❌ Network error: ${error.message}`, 'error');
+            }
+        }
+
+        // Auto-detect current user on page load
+        window.onload = function() {
+            const currentUser = localStorage.getItem('user');
+            if (currentUser) {
+                try {
+                    const user = JSON.parse(currentUser);
+                    showStatus(`👋 Currently logged in as: ${user.name} (${user.role})`, 'info');
+                } catch (e) {
+                    showStatus('⚠️ User data found but could not be parsed', 'error');
+                }
+            } else {
+                showStatus('🔓 Not currently logged in', 'info');
+            }
+        };
+    </script>
+</body>
+</html> 

@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Database Connection Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .container {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 30px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+        }
+        .status {
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 8px;
+            font-weight: bold;
+        }
+        .success { background: rgba(76, 175, 80, 0.8); }
+        .error { background: rgba(244, 67, 54, 0.8); }
+        .info { background: rgba(33, 150, 243, 0.8); }
+        button {
+            background: #4CAF50;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px 5px;
+        }
+        button:hover { background: #45a049; }
+        .log {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            font-family: monospace;
+            font-size: 12px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 Database Connection Test</h1>
+        <p>Testing the PostgreSQL database connection with password "hub h"</p>
+        
+        <div class="status info">
+            <h3>📋 Database Info</h3>
+            <p><strong>Database:</strong> schooldb</p>
+            <p><strong>Host:</strong> localhost:5432</p>
+            <p><strong>User:</strong> postgres</p>
+            <p><strong>Password:</strong> hub h (with space)</p>
+        </div>
+
+        <button onclick="testBackend()">Test Backend API</button>
+        <button onclick="testDatabase()">Test Database Connection</button>
+        <button onclick="testLogin()">Test Login</button>
+        <button onclick="testUsers()">Test Users API</button>
+
+        <div id="results" class="status info">
+            <h3>🔍 Test Results</h3>
+            <div id="backend-result">⏳ Waiting to test...</div>
+            <div id="db-result">⏳ Waiting to test...</div>
+            <div id="login-result">⏳ Waiting to test...</div>
+            <div id="users-result">⏳ Waiting to test...</div>
+        </div>
+
+        <div class="log">
+            <h3>📝 Debug Log</h3>
+            <div id="log"></div>
+        </div>
+    </div>
+
+    <script>
+        function log(message) {
+            const logDiv = document.getElementById('log');
+            const timestamp = new Date().toLocaleTimeString();
+            logDiv.innerHTML += `[${timestamp}] ${message}\n`;
+            logDiv.scrollTop = logDiv.scrollHeight;
+        }
+
+        async function testBackend() {
+            log('Testing backend API...');
+            document.getElementById('backend-result').innerHTML = '🔄 Testing...';
+            
+            try {
+                const response = await fetch('http://localhost:5000/api/health', {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    log(`✅ Backend API: ${JSON.stringify(data)}`);
+                    document.getElementById('backend-result').innerHTML = '✅ Backend API: Working';
+                } else {
+                    log(`❌ Backend API Error: ${response.status} ${response.statusText}`);
+                    document.getElementById('backend-result').innerHTML = `❌ Backend API: Error ${response.status}`;
+                }
+            } catch (error) {
+                log(`❌ Backend API Failed: ${error.message}`);
+                document.getElementById('backend-result').innerHTML = '❌ Backend API: Connection Failed';
+            }
+        }
+
+        async function testDatabase() {
+            log('Testing database connection...');
+            document.getElementById('db-result').innerHTML = '🔄 Testing...';
+            
+            try {
+                const response = await fetch('http://localhost:5000/api/test-db', {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    log(`✅ Database: ${JSON.stringify(data)}`);
+                    document.getElementById('db-result').innerHTML = '✅ Database: Connected';
+                } else {
+                    log(`❌ Database Error: ${response.status} ${response.statusText}`);
+                    document.getElementById('db-result').innerHTML = `❌ Database: Error ${response.status}`;
+                }
+            } catch (error) {
+                log(`❌ Database Failed: ${error.message}`);
+                document.getElementById('db-result').innerHTML = '❌ Database: Connection Failed';
+            }
+        }
+
+        async function testLogin() {
+            log('Testing login with admin@school.com...');
+            document.getElementById('login-result').innerHTML = '🔄 Testing...';
+            
+            try {
+                const response = await fetch('http://localhost:5000/api/auth/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        email: 'admin@school.com',
+                        password: 'admin123'
+                    })
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    log(`✅ Login: ${JSON.stringify(data)}`);
+                    document.getElementById('login-result').innerHTML = '✅ Login: Successful';
+                } else {
+                    const errorData = await response.json();
+                    log(`❌ Login Error: ${JSON.stringify(errorData)}`);
+                    document.getElementById('login-result').innerHTML = '❌ Login: Failed';
+                }
+            } catch (error) {
+                log(`❌ Login Failed: ${error.message}`);
+                document.getElementById('login-result').innerHTML = '❌ Login: Connection Failed';
+            }
+        }
+
+        async function testUsers() {
+            log('Testing users API...');
+            document.getElementById('users-result').innerHTML = '🔄 Testing...';
+            
+            try {
+                const response = await fetch('http://localhost:5000/api/users', {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    log(`✅ Users API: Found ${data.length} users`);
+                    document.getElementById('users-result').innerHTML = `✅ Users API: ${data.length} users found`;
+                } else {
+                    log(`❌ Users API Error: ${response.status} ${response.statusText}`);
+                    document.getElementById('users-result').innerHTML = `❌ Users API: Error ${response.status}`;
+                }
+            } catch (error) {
+                log(`❌ Users API Failed: ${error.message}`);
+                document.getElementById('users-result').innerHTML = '❌ Users API: Connection Failed';
+            }
+        }
+
+        // Auto-run tests
+        window.onload = function() {
+            log('Page loaded, starting tests...');
+            setTimeout(testBackend, 1000);
+            setTimeout(testDatabase, 2000);
+            setTimeout(testLogin, 3000);
+            setTimeout(testUsers, 4000);
+        };
+    </script>
+</body>
+</html> 

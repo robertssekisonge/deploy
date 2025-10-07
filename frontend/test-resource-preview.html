@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Resource Preview Functionality</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-section { margin: 20px 0; padding: 20px; border: 1px solid #ccc; border-radius: 5px; }
+        .success { background-color: #d4edda; border-color: #c3e6cb; }
+        .error { background-color: #f8d7da; border-color: #f5c6cb; }
+        .info { background-color: #d1ecf1; border-color: #bee5eb; }
+        pre { background-color: #f8f9fa; padding: 10px; border-radius: 3px; overflow-x: auto; }
+    </style>
+</head>
+<body>
+    <h1>Test Resource Preview Functionality</h1>
+    
+    <div class="test-section success">
+        <h2>✅ Preview Functionality Fixed</h2>
+        <p><strong>Changes Made:</strong></p>
+        <ul>
+            <li><strong>Modal Preview:</strong> Changed from opening files in new tabs to showing them in a preview modal</li>
+            <li><strong>Image Support:</strong> Images now display directly in the modal with proper sizing</li>
+            <li><strong>File Type Detection:</strong> Added proper file type detection for different preview methods</li>
+            <li><strong>Better UX:</strong> Users can now preview resources without leaving the page</li>
+        </ul>
+    </div>
+
+    <div class="test-section info">
+        <h2>📊 Cisco Resource Details</h2>
+        <pre id="resource-details"></pre>
+    </div>
+
+    <div class="test-section">
+        <h2>🧪 Test Preview Logic</h2>
+        <p>Simulate the preview functionality:</p>
+        <pre id="preview-test"></pre>
+        <button onclick="testPreviewLogic()">Test Preview Logic</button>
+    </div>
+
+    <div class="test-section">
+        <h2>🎯 Expected Behavior</h2>
+        <p>When Teacher Rose clicks "View" on the cisco resource:</p>
+        <ul>
+            <li>✅ A preview modal should open</li>
+            <li>✅ The image should display directly in the modal</li>
+            <li>✅ The modal should be properly sized and centered</li>
+            <li>✅ Teacher Rose can close the modal with the X button</li>
+            <li>✅ The image should be responsive and fit within the modal</li>
+        </ul>
+    </div>
+
+    <script>
+        // Cisco resource data from database
+        const ciscoResource = {
+            id: '1',
+            title: 'cisco',
+            fileType: 'image/jpeg',
+            fileUrl: null,
+            fileData: 'base64data...', // Simulated
+            classIds: ['1'],
+            uploadedBy: 'robs',
+            uploadedAt: '2025-09-12T17:01:57.000Z'
+        };
+
+        function displayResourceDetails() {
+            document.getElementById('resource-details').textContent = JSON.stringify(ciscoResource, null, 2);
+        }
+
+        function testPreviewLogic() {
+            // Simulate the fixed preview logic
+            const resource = ciscoResource;
+            
+            let previewUrl = null;
+            let previewFileType = null;
+            
+            if (resource.fileUrl) {
+                // For file URLs, use the URL directly
+                const fileExtension = resource.fileType?.toLowerCase() || '';
+                
+                // For images, PDFs, and text files, show in preview modal
+                if (['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'application/pdf', 'text/plain'].includes(fileExtension)) {
+                    previewUrl = resource.fileUrl;
+                    previewFileType = resource.fileType;
+                } else {
+                    console.log('Preview not supported for file type:', resource.fileType);
+                }
+            } else if (resource.fileData) {
+                // For base64 data, create blob URL for preview
+                const fileExtension = resource.fileType?.toLowerCase() || '';
+                
+                if (['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'application/pdf', 'text/plain'].includes(fileExtension)) {
+                    // Simulate blob URL creation
+                    previewUrl = 'blob:http://localhost:5173/12345678-1234-1234-1234-123456789abc';
+                    previewFileType = resource.fileType;
+                } else {
+                    console.log('Preview not supported for file type:', resource.fileType);
+                }
+            }
+            
+            const result = {
+                resource: resource.title,
+                fileType: resource.fileType,
+                hasFileUrl: !!resource.fileUrl,
+                hasFileData: !!resource.fileData,
+                previewUrl: previewUrl,
+                previewFileType: previewFileType,
+                canPreview: !!previewUrl,
+                previewMethod: previewFileType && previewFileType.startsWith('image/') ? 'Direct Image Display' : 'Iframe',
+                expectedBehavior: 'Modal should open with image displayed directly'
+            };
+
+            document.getElementById('preview-test').textContent = JSON.stringify(result, null, 2);
+        }
+
+        // Initialize
+        window.onload = function() {
+            displayResourceDetails();
+            testPreviewLogic();
+        };
+    </script>
+</body>
+</html>
+
+
+
+
+
+
+

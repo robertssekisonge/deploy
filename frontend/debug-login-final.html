@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Final Debug Login Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+        }
+        .test-section {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            border-left: 4px solid #007bff;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+            font-size: 14px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        .success { background: #28a745; }
+        .error { background: #dc3545; }
+        .warning { background: #ffc107; color: #333; }
+        
+        .result {
+            background: #e9ecef;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 10px 0;
+            font-family: monospace;
+            white-space: pre-wrap;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .success-result {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .error-result {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .info-result {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 Final Debug Login Test (Port 5175)</h1>
+        
+        <div class="test-section">
+            <h3>🏥 Backend Status</h3>
+            <button onclick="testBackend()">Test Backend (Port 5000)</button>
+            <button onclick="testDatabase()">Test Database</button>
+            <div id="backendResult" class="result"></div>
+        </div>
+        
+        <div class="test-section">
+            <h3>🔐 Test Login API</h3>
+            <button onclick="testRobsLogin()">Test Robs Login</button>
+            <button onclick="testAdminLogin()">Test Admin Login</button>
+            <button onclick="testWrongPassword()">Test Wrong Password</button>
+            <div id="loginResult" class="result"></div>
+        </div>
+        
+        <div class="test-section">
+            <h3>🚀 Test Frontend Access</h3>
+            <button onclick="testFrontend()">Test Frontend (Port 5175)</button>
+            <button onclick="testDashboard()">Test Dashboard Access</button>
+            <button onclick="goToDashboard()">Go to Dashboard</button>
+            <div id="frontendResult" class="result"></div>
+        </div>
+        
+        <div class="test-section">
+            <h3>🧹 Storage Management</h3>
+            <button onclick="clearStorage()">Clear Storage</button>
+            <button onclick="showStorage()">Show Storage</button>
+            <button onclick="autoLogin()">Auto Login & Go</button>
+            <div id="storageResult" class="result"></div>
+        </div>
+    </div>
+
+    <script>
+        function showResult(elementId, message, type = 'info') {
+            const element = document.getElementById(elementId);
+            element.textContent = message;
+            element.className = `result ${type}-result`;
+        }
+
+        async function testBackend() {
+            showResult('backendResult', '🔄 Testing backend on port 5000...');
+            
+            try {
+                const response = await fetch('http://localhost:5000/api/health');
+                const data = await response.json();
+                
+                const result = `✅ Backend is running!
+📡 Status: ${response.status}
+📋 Response: ${JSON.stringify(data, null, 2)}
+⏰ Time: ${new Date().toISOString()}`;
+                
+                showResult('backendResult', result, 'success');
+                
+            } catch (error) {
+                showResult('backendResult', `❌ Backend not running: ${error.message}\n\n💡 Make sure to run: cd backend && npm run dev`, 'error');
+            }
+        }
+
+        async function testDatabase() {
+            showResult('backendResult', '🔄 Testing database connection...');
+            
+            try {
+                const response = await fetch('http://localhost:5000/api/test-db');
+                const data = await response.json();
+                
+                const result = `✅ Database connected!
+📡 Status: ${response.status}
+📋 Response: ${JSON.stringify(data, null, 2)}
+⏰ Time: ${new Date().toISOString()}`;
+                
+                showResult('backendResult', result, 'success');
+                
+            } catch (error) {
+                showResult('backendResult', `❌ Database test failed: ${error.message}`, 'error');
+            }
+        }
+
+        async function testRobsLogin() {
+            showResult('loginResult', '🔄 Testing Robs login...');
+            
+            try {
+                const response = await fetch('http://localhost:5000/api/auth/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        email: 'robs@school.com',
+                        password: 'hub h123'
+                    }),
+                });
+                
+                const data = await response.json();
+                
+                const result = `📧 Email: robs@school.com
+🔑 Password: hub h123
+📡 Status: ${response.status}
+📋 Response: ${JSON.stringify(data, null, 2)}
+⏰ Time: ${new Date().toISOString()}`;
+                
+                showResult('loginResult', result, response.ok ? 'success' : 'error');
+                
+            } catch (error) {
+                showResult('loginResult', `❌ Network Error: ${error.message}`, 'error');
+            }
+        }
+
+        async function testAdminLogin() {
+            showResult('loginResult', '🔄 Testing Admin login...');
+            
+            try {
+                const response = await fetch('http://localhost:5000/api/auth/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        email: 'admin@school.com',
+                        password: 'hub h123'
+                    }),
+                });
+                
+                const data = await response.json();
+                
+                const result = `📧 Email: admin@school.com
+🔑 Password: hub h123
+📡 Status: ${response.status}
+📋 Response: ${JSON.stringify(data, null, 2)}
+⏰ Time: ${new Date().toISOString()}`;
+                
+                showResult('loginResult', result, response.ok ? 'success' : 'error');
+                
+            } catch (error) {
+                showResult('loginResult', `❌ Network Error: ${error.message}`, 'error');
+            }
+        }
+
+        async function testWrongPassword() {
+            showResult('loginResult', '🔄 Testing wrong password...');
+            
+            try {
+                const response = await fetch('http://localhost:5000/api/auth/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        email: 'robs@school.com',
+                        password: 'wrongpassword'
+                    }),
+                });
+                
+                const data = await response.json();
+                
+                const result = `📧 Email: robs@school.com
+🔑 Password: wrongpassword
+📡 Status: ${response.status}
+📋 Response: ${JSON.stringify(data, null, 2)}
+⏰ Time: ${new Date().toISOString()}`;
+                
+                showResult('loginResult', result, response.ok ? 'success' : 'error');
+                
+            } catch (error) {
+                showResult('loginResult', `❌ Network Error: ${error.message}`, 'error');
+            }
+        }
+
+        async function testFrontend() {
+            showResult('frontendResult', '🔄 Testing frontend on port 5175...');
+            
+            try {
+                const response = await fetch('http://localhost:5175/');
+                
+                const result = `✅ Frontend is running!
+📡 Status: ${response.status}
+📋 URL: http://localhost:5175/
+⏰ Time: ${new Date().toISOString()}`;
+                
+                showResult('frontendResult', result, 'success');
+                
+            } catch (error) {
+                showResult('frontendResult', `❌ Frontend not running: ${error.message}`, 'error');
+            }
+        }
+
+        async function testDashboard() {
+            showResult('frontendResult', '🔄 Testing dashboard access...');
+            
+            try {
+                const response = await fetch('http://localhost:5175/dashboard');
+                
+                const result = `📊 Dashboard Test
+📡 Status: ${response.status}
+📋 URL: http://localhost:5175/dashboard
+⏰ Time: ${new Date().toISOString()}`;
+                
+                showResult('frontendResult', result, response.ok ? 'success' : 'error');
+                
+            } catch (error) {
+                showResult('frontendResult', `❌ Dashboard test failed: ${error.message}`, 'error');
+            }
+        }
+
+        function goToDashboard() {
+            window.location.href = 'http://localhost:5175/dashboard';
+        }
+
+        function clearStorage() {
+            localStorage.clear();
+            sessionStorage.clear();
+            showResult('storageResult', '🧹 Storage cleared successfully!', 'success');
+        }
+
+        function showStorage() {
+            const user = localStorage.getItem('user');
+            const result = `📦 Current Storage:
+localStorage.user: ${user ? 'EXISTS' : 'NOT FOUND'}
+sessionStorage.user: ${sessionStorage.getItem('user') ? 'EXISTS' : 'NOT FOUND'}
+
+${user ? `User Data: ${user}` : 'No user data found'}`;
+            
+            showResult('storageResult', result, 'info');
+        }
+
+        async function autoLogin() {
+            showResult('storageResult', '🚀 Auto logging in...', 'info');
+            
+            try {
+                // Clear storage first
+                localStorage.clear();
+                sessionStorage.clear();
+                
+                // Login
+                const response = await fetch('http://localhost:5000/api/auth/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        email: 'robs@school.com',
+                        password: 'hub h123'
+                    }),
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    // Store user data
+                    localStorage.setItem('user', JSON.stringify(data));
+                    
+                    showResult('storageResult', `✅ Login successful! Redirecting to dashboard...`, 'success');
+                    
+                    // Redirect to dashboard
+                    setTimeout(() => {
+                        window.location.href = 'http://localhost:5175/dashboard';
+                    }, 2000);
+                } else {
+                    showResult('storageResult', `❌ Login failed: ${data.error || data.message}`, 'error');
+                }
+                
+            } catch (error) {
+                showResult('storageResult', `❌ Network error: ${error.message}`, 'error');
+            }
+        }
+
+        // Auto-run backend test on page load
+        window.onload = function() {
+            testBackend();
+        };
+    </script>
+</body>
+</html> 

@@ -1,0 +1,28 @@
+[
+  {
+    "id": "1",
+    "name": "Sarah Johnson",
+    "email": "sarah.johnson@email.com",
+    "phone": "+256 701 234 567",
+    "address": "Kampala, Uganda",
+    "occupation": "Teacher",
+    "role": "PARENT",
+    "studentIds": "[\"1\", \"2\"]",
+    "status": "active",
+    "createdAt": "2025-08-29T13:43:39.776Z",
+    "updatedAt": "2025-08-29T13:43:39.777Z"
+  },
+  {
+    "id": "2",
+    "name": "Michael Brown",
+    "email": "michael.brown@email.com",
+    "phone": "+256 702 345 678",
+    "address": "Entebbe, Uganda",
+    "occupation": "Engineer",
+    "role": "PARENT",
+    "studentIds": "[]",
+    "status": "inactive",
+    "createdAt": "2025-08-29T13:43:39.777Z",
+    "updatedAt": "2025-08-29T13:43:39.777Z"
+  }
+]
